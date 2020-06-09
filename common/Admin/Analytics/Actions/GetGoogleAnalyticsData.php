@@ -9,14 +9,14 @@ use Spatie\Analytics\Analytics;
 class GetGoogleAnalyticsData implements GetAnalyticsData
 {
     /**
-     * @var LaravelAnalytics
+     * @var Analytics
      */
     private $analytics;
 
     /**
-     * @param LaravelAnalytics $analytics
+     * @param Analytics $analytics
      */
-    public function __construct(LaravelAnalytics $analytics)
+    public function __construct(Analytics $analytics)
     {
         $this->analytics = $analytics;
         $this->registerCollectionMacros();
