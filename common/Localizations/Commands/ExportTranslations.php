@@ -46,7 +46,7 @@ class ExportTranslations extends Command
             $this->GetDefaultValidationMessages(),
             $this->getDefaultMenuLabels(),
             $this->getAnalyticsHeaderLabels(),
-            $this->getPermissionNamesAndDescriptions(),
+            $this->getPermissionNamesAndDescriptions()
         );
 
         $this->fs->put(resource_path('server-translations.json'), json_encode($messages));
