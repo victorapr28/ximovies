@@ -1,16 +1,13 @@
 <?php
 
-if ( ! file_exists(__DIR__.'/../.env') || (strpos(file_get_contents(__DIR__.'/../.env'), 'INSTALLED=false') !== false)) {
-    require_once __DIR__.'/install_files/install.php';
-    exit;
-}
-
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
  * @package  Laravel
  * @author   Taylor Otwell <taylor@laravel.com>
  */
+
+define('LARAVEL_START', microtime(true));
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +21,7 @@ if ( ! file_exists(__DIR__.'/../.env') || (strpos(file_get_contents(__DIR__.'/..
 |
 */
 
-require __DIR__.'/../bootstrap/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------

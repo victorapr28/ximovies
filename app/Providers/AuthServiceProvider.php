@@ -21,6 +21,7 @@ use App\Title;
 use App\Video;
 use App\VideoCaption;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
