@@ -33,7 +33,7 @@ class CreateFileEntry
     public function execute($fileOrData, $extra)
     {
         if (is_array($fileOrData)) {
-            $data = array_except($fileOrData, ['contents']);
+            $data = Arr::except($fileOrData, ['contents']);
         } else {
             $data = app(UploadedFileToArray::class)->execute($fileOrData);
         }

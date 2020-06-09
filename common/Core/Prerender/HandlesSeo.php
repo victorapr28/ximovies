@@ -4,6 +4,7 @@ namespace Common\Core\Prerender;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Request;
 
 trait HandlesSeo

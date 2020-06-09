@@ -4,6 +4,7 @@ use Common\Auth\Permissions\Permission;
 use Common\Billing\BillingPlan;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class BillingPlanSeeder extends Seeder
 {
@@ -80,7 +81,7 @@ class BillingPlanSeeder extends Seeder
 
         $basic = $this->plan->create([
             'name' => $params['name'],
-            'uuid' => str_random(36),
+            'uuid' => Str::random(36),
             'amount' => $params['amount'],
             'currency' => 'USD',
             'currency_symbol' => '$',
@@ -94,7 +95,7 @@ class BillingPlanSeeder extends Seeder
 
         $this->plan->create([
             'name' => "6 Month Subscription",
-            'uuid' => str_random(36),
+            'uuid' => Str::random(36),
             'parent_id' => $basic->id,
             'interval' => 'month',
             'interval_count' => 6,
@@ -105,7 +106,7 @@ class BillingPlanSeeder extends Seeder
 
         $this->plan->create([
             'name' => "1 Year Subscription",
-            'uuid' => str_random(36),
+            'uuid' => Str::random(36),
             'parent_id' => $basic->id,
             'interval' => 'month',
             'interval_count' => 12,

@@ -8,6 +8,7 @@ use Common\Files\Actions\CreateFileEntry;
 use Common\Files\Actions\Storage\StorePrivateUpload;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Storage;
 
 class CrupdateCaption
@@ -35,7 +36,7 @@ class CrupdateCaption
         if ( ! $caption) {
             $caption = $this->caption->newInstance([
                 'user_id' => Auth::id(),
-                'hash' => str_random(36),
+                'hash' => Str::random(36),
             ]);
         }
 

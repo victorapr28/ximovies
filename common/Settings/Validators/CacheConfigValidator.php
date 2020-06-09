@@ -33,7 +33,7 @@ class CacheConfigValidator
 
     private function setConfigDynamically($settings)
     {
-        app(DotEnvEditor::class)->write(array_except($settings, ['cached_driver']));
+        app(DotEnvEditor::class)->write(Arr::except($settings, ['cached_driver']));
     }
 
     /**

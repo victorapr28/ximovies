@@ -19,6 +19,7 @@ use Illuminate\Validation\ValidationException;
 use Swift_TransportException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
 
 class BaseExceptionHandler extends Handler
 {
@@ -44,7 +45,7 @@ class BaseExceptionHandler extends Handler
      * @param Exception $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         if (app()->bound('sentry') && $this->shouldReport($exception) && config('app.env') === 'production') {
             if ($user = Auth::user()) {
@@ -81,7 +82,7 @@ class BaseExceptionHandler extends Handler
      * @param Exception $exception
      * @return JsonResponse|Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
         if ($exception instanceof AuthorizationException && Auth::guest()) {
             return $this->unauthenticated($request, $exception);

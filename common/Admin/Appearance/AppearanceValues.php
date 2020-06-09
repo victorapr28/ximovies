@@ -107,7 +107,7 @@ class AppearanceValues
 
         if ( ! $seoConfig) return [];
 
-        $seo = array_except($seoConfig, 'common');
+        $seo = Arr::except($seoConfig, 'common');
 
         // resource groups meta tags for artist, movie, track etc.
         foreach ($seo as $resourceName => $resource) {

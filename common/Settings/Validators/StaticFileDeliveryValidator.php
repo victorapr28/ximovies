@@ -6,6 +6,7 @@ use Common\Core\HttpClient;
 use Common\Files\Actions\Deletion\PermanentlyDeleteEntries;
 use Common\Files\Actions\UploadFile;
 use Common\Settings\DotEnvEditor;
+use Illuminate\Support\Str;
 
 class StaticFileDeliveryValidator implements SettingsValidator
 {
@@ -29,13 +30,13 @@ class StaticFileDeliveryValidator implements SettingsValidator
                 'UPLOADS_DISK_DRIVER' => 'local'
             ]);
 
-        $previewToken = str_random(10);
-        $contents = str_random(10);
+        $previewToken = Str::random(10);
+        $contents = Str::random(10);
 
         $fileEntry = app(UploadFile::class)->execute('private', [
             'contents' => $contents,
-            'name' => 'temp #' . str_random(5),
-            'file_name' => str_random(40),
+            'name' => 'temp #' . Str::random(5),
+            'file_name' => Str::random(40),
             'preview_token' => $previewToken,
             'mime' => 'text/plain',
             'type' => 'text',

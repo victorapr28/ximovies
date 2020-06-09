@@ -150,7 +150,7 @@ class MetaTags implements Arrayable
     {
         $string = '';
 
-        foreach(array_except($tag, 'nodeName') as $key => $value) {
+        foreach(Arr::except($tag, 'nodeName') as $key => $value) {
             $value = is_array($value) ? implode(',', $value) : $value;
             $string .= "$key=\"$value\" ";
         }

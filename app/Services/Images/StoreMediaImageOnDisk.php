@@ -3,6 +3,7 @@
 namespace App\Services\Images;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Intervention\Image\Constraint;
 use Intervention\Image\Image;
 use Storage;
@@ -24,7 +25,7 @@ class StoreMediaImageOnDisk
      */
     public function execute(UploadedFile $file)
     {
-        $hash = str_random(30);
+        $hash = Str::random(30);
         $img = ImageManager::make($file);
 
         foreach ($this->sizes as $key => $size) {

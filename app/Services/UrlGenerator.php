@@ -9,6 +9,7 @@ use App\Episode;
 use Common\Tags\Tag;
 use App\NewsArticle;
 use Common\Core\Prerender\BaseUrlGenerator;
+use Illuminate\Support\Str;
 
 class UrlGenerator extends BaseUrlGenerator
 {
@@ -18,7 +19,7 @@ class UrlGenerator extends BaseUrlGenerator
      */
     public function title($title)
     {
-        $slug = str_slug($title['name']);
+        $slug = Str::slug($title['name']);
         return url("titles/{$title['id']}/{$slug}");
     }
 
@@ -28,7 +29,7 @@ class UrlGenerator extends BaseUrlGenerator
      */
     public function person($person)
     {
-        $slug = str_slug($person['name']);
+        $slug = Str::slug($person['name']);
         return url("people/{$person['id']}/{$slug}");
     }
 

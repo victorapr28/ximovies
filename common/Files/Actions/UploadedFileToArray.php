@@ -5,6 +5,7 @@ namespace Common\Files\Actions;
 use Common\Files\FileEntry;
 use Common\Files\Traits\GetsEntryTypeFromMime;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 class UploadedFileToArray
 {
@@ -51,7 +52,7 @@ class UploadedFileToArray
 
         $data = [
             'name' => $file->getClientOriginalName(),
-            'file_name' => str_random(40),
+            'file_name' => Str::random(40),
             'mime' => $originalMime,
             'type' => isset($type) ? $type : $this->getTypeFromMime($originalMime),
             'file_size' => $file->getClientSize(),

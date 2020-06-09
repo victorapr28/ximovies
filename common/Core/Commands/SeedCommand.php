@@ -4,6 +4,7 @@ use File;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class SeedCommand extends Command
 {
@@ -25,7 +26,7 @@ class SeedCommand extends Command
         $paths = collect(File::files(__DIR__ . '/../../Database/Seeds'));
 
         $paths->filter(function($path) {
-            return ends_with($path, '.php');
+            return Str::endsWith($path, '.php');
         })->each(function($path) {
             Model::unguarded(function () use ($path) {
                 $namespace = 'Common\Database\Seeds\\'.basename($path, '.php');

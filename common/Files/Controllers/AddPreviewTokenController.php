@@ -5,6 +5,7 @@ namespace Common\Files\Controllers;
 use Common\Core\BaseController;
 use Common\Files\FileEntry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AddPreviewTokenController extends BaseController
 {
@@ -34,7 +35,7 @@ class AddPreviewTokenController extends BaseController
 
         $this->authorize('show', $entry);
 
-        $token = str_random(15);
+        $token = Str::random(15);
         $entry->update(['preview_token' => $token]);
 
         return $this->success(['preview_token' => $token]);

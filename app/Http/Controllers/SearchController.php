@@ -8,6 +8,7 @@ use Common\Core\BaseController;
 use Common\Settings\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class SearchController extends BaseController
 {
@@ -31,7 +32,7 @@ class SearchController extends BaseController
 
         $results = $results->map(function($result) {
             if (isset($result['description'])) {
-                $result['description'] = str_limit($result['description'], 170);
+                $result['description'] = Str::limit($result['description'], 170);
             }
             return $result;
         })->values();

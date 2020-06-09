@@ -9,6 +9,7 @@ use App\VideoCaption;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 class CreateDemoStreamVideos extends Command
 {
@@ -142,7 +143,7 @@ class CreateDemoStreamVideos extends Command
         return [
             'name' => $name,
             'language' => $lang,
-            'hash' => str_random(36),
+            'hash' => Str::random(36),
             'url' => url("storage/sintel/sintel_$lang.srt"),
             'user_id' => 1,
             'video_id' => $videoId,

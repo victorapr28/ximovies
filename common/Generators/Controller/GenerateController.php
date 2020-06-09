@@ -3,6 +3,7 @@
 namespace Common\Generators\Controller;
 
 use Illuminate\Routing\Console\ControllerMakeCommand;
+use Illuminate\Support\Str;
 
 class GenerateController extends ControllerMakeCommand
 {
@@ -25,7 +26,7 @@ class GenerateController extends ControllerMakeCommand
     protected function getRouteStub()
     {
         $resourceName = Str::kebab(class_basename($this->option('model')));
-        $resourceComment = strtoupper(title_case($this->option('model')));
+        $resourceComment = strtoupper(Str::title($this->option('model')));
         return str_replace(
             ['dummyResourceName', 'dummyControllerName', 'dummyResourceComment'],
             [$resourceName, $this->getNameInput(), $resourceComment],

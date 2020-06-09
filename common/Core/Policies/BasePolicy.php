@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 abstract class BasePolicy
 {
@@ -37,10 +38,10 @@ abstract class BasePolicy
     protected function storeWithCountRestriction(User $user, $namespace, $relation = null)
     {
         // "App\SomeModel" => "Some_Model"
-        $resourceName = snake_case(class_basename($namespace));
+        $resourceName = Str::snake(class_basename($namespace));
 
         // "Some_Model" => "some_models"
-        $pluralName = strtolower(str_plural($resourceName));
+        $pluralName = strtolower(Str::plural($resourceName));
 
         // user can't create resource at all
         if ( ! $user->hasPermission("$pluralName.create")) {
@@ -63,7 +64,7 @@ abstract class BasePolicy
         $relation = $relation ?: $pluralName;
         if ($user->$relation->count() >= $maxCount) {
             $displayPlural = ucwords(str_replace('_', ' ', $pluralName));
-            $displaySingular = str_singular(ucwords(str_replace('_', ' ', $pluralName)));
+            $displaySingular = Str::plural(ucwords(str_replace('_', ' ', $pluralName)));
             $message = __('policies.quota_exceeded', ['resources' => $displayPlural, 'resource' => $displaySingular]);
             $this->deny($message, ['showUpgradeButton' => true]);
         }

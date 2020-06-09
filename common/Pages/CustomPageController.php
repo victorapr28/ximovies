@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class CustomPageController extends BaseController
 {
@@ -55,7 +56,7 @@ class CustomPageController extends BaseController
         $pagination = $paginator->paginate();
 
         $pagination->transform(function($page) {
-            $page->body = str_limit(strip_tags($page->body), 200);
+            $page->body = Str::limit(strip_tags($page->body), 200);
             return $page;
         });
 

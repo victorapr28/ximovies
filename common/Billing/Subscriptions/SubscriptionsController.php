@@ -128,7 +128,7 @@ class SubscriptionsController extends BaseController
 
         /** @var Subscription $subscription */
         $subscription = $this->subscription->findOrFail($id);
-        $plan = $this->billingPlan->findOrfail($this->request->get('newPlanId'));
+        $plan = $this->billingPlan->findOrFail($this->request->get('newPlanId'));
 
         $subscription->changePlan($plan);
 

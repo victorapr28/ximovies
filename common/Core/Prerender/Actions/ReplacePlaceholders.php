@@ -7,6 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Common\Core\Contracts\AppUrlGenerator;
 use Illuminate\Support\Debug\Dumper;
+use Illuminate\Support\Str;
 
 class ReplacePlaceholders
 {
@@ -127,11 +128,11 @@ class ReplacePlaceholders
             }
 
             // replace by url generator url
-            if (starts_with($placeholder, 'url.')) {
+            if (Str::startsWith($placeholder, 'url.')) {
                 // "url.movie" => "movie"
                 $resource = str_replace('url.', '', $placeholder);
                 // "new_releases" => "newReleases"
-                $method = camel_case($resource);
+                $method = Str::camel($resource);
                 return $this->urls->$method(Arr::get($data, $resource) ?: $data);
             }
 
@@ -143,7 +144,7 @@ class ReplacePlaceholders
                 return $matches[0];
             }
 
-            return str_limit(strip_tags($this->replaceString($replacement, $data), '<br>'), 400);
+            return Str::limit(strip_tags($this->replaceString($replacement, $data), '<br>'), 400);
         }, $template);
     }
 }

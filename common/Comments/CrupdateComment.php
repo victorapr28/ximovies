@@ -41,7 +41,7 @@ class CrupdateComment
 
         // specific app might need to store
         // some extra data along with comment
-        $attributes = array_except($data, 'inReplyTo');
+        $attributes = Arr::except($data, 'inReplyTo');
         if ($inReplyTo) {
             $attributes['parent_id'] = $inReplyTo['id'];
         }

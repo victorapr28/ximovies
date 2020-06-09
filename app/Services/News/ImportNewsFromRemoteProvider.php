@@ -5,6 +5,7 @@ namespace App\Services\News;
 use App\NewsArticle;
 use App\Services\Data\Contracts\NewsProviderInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class ImportNewsFromRemoteProvider
 {
@@ -33,7 +34,7 @@ class ImportNewsFromRemoteProvider
     public function execute()
     {
         $newArticles = $this->newsProvider->getArticles()->map(function($article) {
-            $article['slug'] = str_slug(str_limit($article['title'], 50));
+            $article['slug'] = Str::slug(Str::limit($article['title'], 50));
             $article['type'] = NewsArticle::NEWS_ARTICLE_TYPE;
             $article['meta'] = json_encode($article['meta']);
             $article['created_at'] = Carbon::now();

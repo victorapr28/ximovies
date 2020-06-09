@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class Paginator
 {
@@ -134,7 +135,7 @@ class Paginator
      */
     public function param($name, $default = null)
     {
-        return Arr::get($this->params, camel_case($name)) ?: $default;
+        return Arr::get($this->params, Str::camel($name)) ?: $default;
     }
 
     /**
@@ -215,7 +216,7 @@ class Paginator
     private function toCamelCase($params)
     {
         return collect($params)->keyBy(function($value, $key) {
-            return camel_case($key);
+            return Str::camel($key);
         })->toArray();
     }
 
@@ -223,10 +224,10 @@ class Paginator
     {
         foreach ($this->filterColumns as $column => $callback) {
             $column = is_int($column) ? $callback : $column;
-            $column = camel_case($column);
+            $column = Str::camel($column);
             if (isset($this->params[$column])) {
                 $value = $this->params[$column];
-                $column = snake_case($column);
+                $column = Str::camel($column);
 
                 // user specified callback
                 if (is_callable($callback)) {

@@ -3,6 +3,7 @@
 use App;
 use Blade;
 use Exception;
+use Illuminate\Support\Str;
 use Throwable;
 use Common\Settings\Settings;
 use Illuminate\Support\Arr;
@@ -121,9 +122,9 @@ class MailTemplatePreview
             'emailMessage'  => $this->faker->sentence(20),
             'body'          => $this->faker->sentence(20),
             'ticket'        => $ticket,
-            'reference'     => str_random(30),
+            'reference'     => Str::random(30),
             'itemName'      => $this->faker->word,
-            'code'          => str_random(),
+            'code'          => Str::random(),
             'link'          => url(''),
             'siteName'      => $this->settings->get('branding.site_name')
         ];

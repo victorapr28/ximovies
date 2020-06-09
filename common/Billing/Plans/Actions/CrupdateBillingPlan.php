@@ -7,6 +7,7 @@ use Common\Billing\BillingPlan;
 use Common\Billing\Gateways\Contracts\GatewayInterface;
 use Common\Billing\Gateways\GatewayFactory;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class CrupdateBillingPlan
 {
@@ -34,7 +35,7 @@ class CrupdateBillingPlan
     {
         if ( ! $plan) {
             $plan = app(BillingPlan::class)
-                ->newModelInstance(['uuid' => str_random(36)]);
+                ->newModelInstance(['uuid' => Str::random(36)]);
         }
 
         if ($parentId = Arr::get($data, 'parent_id')) {

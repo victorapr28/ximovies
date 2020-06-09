@@ -260,16 +260,16 @@ class TransformData
             'name' => $tmdbPerson['name'],
             'tmdb_id' => $tmdbPerson['id'],
             'imdb_id' => Arr::get($tmdbPerson, 'imdb_id'),
-            'gender' => $this->transformGender(array_get($tmdbPerson, 'gender')),
+            'gender' => $this->transformGender(Arr::get($tmdbPerson, 'gender')),
             'poster' => $this->getPoster($tmdbPerson['profile_path']),
             'type' => Person::PERSON_TYPE,
             'adult' => Arr::get($tmdbPerson, 'adult', false),
             'fully_synced' => Arr::get($tmdbPerson, 'fully_synced') ?: false,
             'relation_data' => [
-                'character' => array_get($tmdbPerson, 'character') ?: null,
-                'order' => array_get($tmdbPerson, 'order', 0),
-                'department' => strtolower(array_get($tmdbPerson, 'department', 'cast')),
-                'job' => strtolower(array_get($tmdbPerson, 'job', 'cast')),
+                'character' => Arr::get($tmdbPerson, 'character') ?: null,
+                'order' => Arr::get($tmdbPerson, 'order', 0),
+                'department' => strtolower(Arr::get($tmdbPerson, 'department', 'cast')),
+                'job' => strtolower(Arr::get($tmdbPerson, 'job', 'cast')),
             ]
         ];
 
@@ -293,8 +293,8 @@ class TransformData
                 });
 
                 $title['relation_data'] = [
-                    'department' => strtolower(array_get($credit, 'department', 'cast')),
-                    'job' => strtolower(array_get($credit, 'job', 'cast')),
+                    'department' => strtolower(Arr::get($credit, 'department', 'cast')),
+                    'job' => strtolower(Arr::get($credit, 'job', 'cast')),
                     'character' => Arr::get($credit, 'character') ?: null,
                     'order' => Arr::get($credit, 'order', 0),
                 ];
@@ -337,10 +337,10 @@ class TransformData
     {
         // cast/crew from series, movies and episodes
         $credits = array_merge(
-            array_get($tmdbTitle, 'credits.cast', []),
-            array_get($tmdbTitle, 'credits.crew', []),
-            array_get($tmdbTitle, 'crew', []),
-            array_get($tmdbTitle, 'guest_stars', [])
+            Arr::get($tmdbTitle, 'credits.cast', []),
+            Arr::get($tmdbTitle, 'credits.crew', []),
+            Arr::get($tmdbTitle, 'crew', []),
+            Arr::get($tmdbTitle, 'guest_stars', [])
         );
 
         // "created_by" is in separate property
@@ -381,7 +381,7 @@ class TransformData
      */
     private function transformImages($tmdbTitle, $type = 'backdrop')
     {
-        $images = array_get($tmdbTitle, 'images.backdrops', []);
+        $images = Arr::get($tmdbTitle, 'images.backdrops', []);
 
         return array_map(function($image) use($type) {
             return [

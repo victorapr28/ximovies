@@ -11,6 +11,7 @@ use Common\Settings\Settings;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Log;
 
 class TmdbApi implements DataProvider
@@ -123,7 +124,7 @@ class TmdbApi implements DataProvider
 
     public function getTitles($titleType, $titleCategory)
     {
-        $titleCategory = snake_case($titleCategory);
+        $titleCategory = Str::snake($titleCategory);
         $uri = $titleType . '/' . $titleCategory;
 
         switch ($uri) {

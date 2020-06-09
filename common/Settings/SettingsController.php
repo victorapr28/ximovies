@@ -8,6 +8,7 @@ use File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use ReflectionClass;
 
 class SettingsController extends BaseController {
@@ -136,7 +137,7 @@ class SettingsController extends BaseController {
                 $class = (new ReflectionClass($validator))->getShortName();
                 // GoogleLoginValidator => google-login-validator => google => google_group
                 $groupName = explode('-', Str::kebab($class))[0] . '_group';
-                return $this->error([$groupName => str_limit($e->getMessage(), 200)]);
+                return $this->error([$groupName => Str::limit($e->getMessage(), 200)]);
             }
         }
     }

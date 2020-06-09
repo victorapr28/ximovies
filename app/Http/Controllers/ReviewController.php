@@ -11,6 +11,7 @@ use Common\Core\BaseController;
 use Common\Database\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ReviewController extends BaseController
 {
@@ -71,7 +72,7 @@ class ReviewController extends BaseController
 
         if ($this->request->get('compact')) {
             $pagination->map(function(Review $review) {
-                $review->body = str_limit($review->body, 200);
+                $review->body = Str::limit($review->body, 200);
                 return $review;
             });
         }

@@ -15,6 +15,7 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class PersonController extends BaseController
 {
@@ -61,7 +62,7 @@ class PersonController extends BaseController
         $pagination = $paginator->paginate();
 
         $pagination->map(function(Person $person) {
-            $person->description = str_limit($person->description, 500);
+            $person->description = Str::limit($person->description, 500);
             $person->setRelation('popular_credits', $person->popularCredits->slice(0, 1));
             return $person;
         });

@@ -2,7 +2,6 @@
 
 namespace Common;
 
-use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Clockwork\Support\Laravel\ClockworkServiceProvider;
 use Common\Admin\Analytics\AnalyticsServiceProvider;
 use Common\Admin\Appearance\Themes\CssTheme;

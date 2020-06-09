@@ -11,6 +11,7 @@ use Common\Settings\Settings;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class RelatedVideosController extends BaseController
 {
@@ -119,7 +120,7 @@ class RelatedVideosController extends BaseController
             $sNum = $episode->season_number < 10 ? ('0' . $episode->season_number) : $episode->season_number;
             $eNum = $episode->episode_number < 10 ? ('0' . $episode->episode_number)  : $episode->episode_number;
             $video->name = "(s{$sNum}e{$eNum}) - {$episode->name}";
-            $video->description = str_limit($episode->description, 35);
+            $video->description = Str::limit($episode->description, 35);
             $video->thumbnail = $episode->poster;
             $video->setRelation('episode_model', null);
             return $video;

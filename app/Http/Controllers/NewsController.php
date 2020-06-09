@@ -11,6 +11,7 @@ use Common\Database\Paginator;
 use Common\Pages\Page;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class NewsController extends BaseController
 {
@@ -109,7 +110,7 @@ class NewsController extends BaseController
 
         $article = $this->article->create([
             'title' => $this->request->get('title'),
-            'slug' => str_limit($this->request->get('title'), 30),
+            'slug' => Str::limit($this->request->get('title'), 30),
             'body' => $this->request->get('body'),
             'meta' => ['image' => $this->request->get('image')],
             'type' => NewsArticle::NEWS_ARTICLE_TYPE,

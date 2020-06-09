@@ -23,6 +23,7 @@ final class Versions
      * @internal
      */
     const VERSIONS          = array (
+  'asm89/stack-cors' => '1.3.0@b9c31def6a83f84b4d4a40d35996d375755f0e08',
   'awobaz/compoships' => '1.1.18@e44d3abb6c84b5012c22d7eecc2d107f2f1204cd',
   'aws/aws-sdk-php' => '3.140.3@aebd17510b6220b6e5b239730b02eaf7b9b2b816',
   'brick/math' => '0.8.15@9b08d412b9da9455b210459ff71414de7e6241cd',
@@ -39,6 +40,7 @@ final class Versions
   'elasticsearch/elasticsearch' => '5.x-dev@80fe9b192f3806349df45a0e67749aabb625addc',
   'fideloper/proxy' => '4.3.0@ec38ad69ee378a1eec04fb0e417a97cfaf7ed11a',
   'firebase/php-jwt' => 'v5.2.0@feb0e820b8436873675fd3aca04f3728eb2185cb',
+  'fruitcake/laravel-cors' => 'v1.0.6@1d127dbec313e2e227d65e0c483765d8d7559bf6',
   'gliterd/backblaze-b2' => '1.2.1@af9122e320cf16fb04b9d96a5af854d7227dd38c',
   'google/apiclient' => 'v2.5.0@9ab9cc07f66e2c7274ea2753f102ae24d1271410',
   'google/apiclient-services' => 'v0.139@84e99f792cae7bd92b8b54c75b0ad3502d628db6',
@@ -185,7 +187,7 @@ final class Versions
   'sebastian/version' => '2.0.1@99732be0ddb3361e16ad77b68ba41efc8e979019',
   'theseer/tokenizer' => '1.1.3@11336f6f84e16a720dae9d8e6ed5019efa85a0f9',
   'webmozart/assert' => '1.8.0@ab2cb0b3b559010b75981b1bdce728da3ee90ad6',
-  'laravel/laravel' => 'dev-master@0b5c1556c66f91b6f8e9fcd13734086aea9197f8',
+  'laravel/laravel' => 'dev-master@e2d64117269468f315197a6d9bd03c6a99dbb85c',
 );
 
     private function __construct()

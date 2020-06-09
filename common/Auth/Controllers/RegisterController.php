@@ -9,6 +9,7 @@ use Common\Settings\Settings;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class RegisterController extends BaseController
 {
@@ -65,7 +66,7 @@ class RegisterController extends BaseController
         $needsConfirmation = $this->settings->get('require_email_confirmation');
 
         if ($needsConfirmation) {
-            $params['confirmation_code'] = str_random(30);
+            $params['confirmation_code'] = Str::random(30);
             $params['confirmed'] = 0;
         }
 

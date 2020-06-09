@@ -7,6 +7,7 @@ use File;
 use finfo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class AssembleFileFromChunks
 {
@@ -24,7 +25,7 @@ class AssembleFileFromChunks
 
         $chunks = collect(File::files($chunkDir))
             ->filter(function($path) {
-                return !ends_with($path, self::$finalFileName);
+                return !Str::endsWith($path, self::$finalFileName);
             })
             ->map(function($path) {
                 return ['path' => $path, 'number' => (int) basename($path)];

@@ -21,7 +21,7 @@ class GenerateRequest extends RequestMakeCommand
     {
         $stub = parent::buildClass($name);
 
-        $model = snake_case($this->option('model'));
+        $model = Str::snake($this->option('model'));
         $table = Str::plural($model);
 
         $stub = str_replace('DummyModel', $model, $stub);

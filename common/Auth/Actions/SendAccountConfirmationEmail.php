@@ -5,6 +5,7 @@ namespace Common\Auth\Actions;
 use App\User;
 use Common\Mail\ConfirmEmail;
 use Common\Settings\Settings;
+use Illuminate\Support\Str;
 use Mail;
 
 class SendAccountConfirmationEmail
@@ -29,7 +30,7 @@ class SendAccountConfirmationEmail
     {
         if ( ! $user->confirmed && $this->settings->get('require_email_confirmation')) {
             if ( ! $user->confirmation_code) {
-                $user->confirmation_code = str_random(30);
+                $user->confirmation_code = Str::random(30);
                 $user->save();
             }
             Mail::queue(new ConfirmEmail($user->email, $user->confirmation_code));

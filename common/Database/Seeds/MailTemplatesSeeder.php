@@ -3,6 +3,7 @@
 use Exception;
 use Illuminate\Database\Seeder;
 use Common\Mail\MailTemplates;
+use Illuminate\Support\Str;
 
 class MailTemplatesSeeder extends Seeder
 {
@@ -26,7 +27,7 @@ class MailTemplatesSeeder extends Seeder
     {
         $this->mailTemplates->getDefault()->each(function($config) {
             //user friendly template name
-            $config['display_name'] = str_replace('-', ' ', title_case($config['name']));
+            $config['display_name'] = str_replace('-', ' ', Str::title($config['name']));
 
             //for what action template will be used
             $config['action'] = str_replace('-', '_', $config['name']);

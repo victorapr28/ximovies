@@ -8,6 +8,7 @@ use Config;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Mail\MailServiceProvider;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Mail;
 use Exception;
 use Common\Settings\Validators\SettingsValidator;
@@ -41,7 +42,7 @@ class MailCredentialsValidator implements SettingsValidator
 
             // "mail.*" credentials go into "mail.php" config
             // file, other credentials go into "services.php"
-            if ( ! starts_with($key, 'mail.')) {
+            if ( ! Str::startsWith($key, 'mail.')) {
                 $key = "services.$key";
             }
 

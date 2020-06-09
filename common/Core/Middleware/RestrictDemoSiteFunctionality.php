@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Common\Mail\MailTemplates;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class RestrictDemoSiteFunctionality
@@ -136,13 +137,13 @@ class RestrictDemoSiteFunctionality
 
         foreach ($serverKeys as $key) {
             if (isset($settings['server'][$key])) {
-                $settings['server'][$key] = str_random(30);
+                $settings['server'][$key] = Str::random(30);
             }
         }
 
         foreach ($clientKeys as $key) {
             if (isset($settings['client'][$key])) {
-                $settings['client'][$key] = str_random(30);
+                $settings['client'][$key] = Str::random(30);
             }
         }
 

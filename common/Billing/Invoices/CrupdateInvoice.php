@@ -4,6 +4,7 @@
 namespace Common\Billing\Invoices;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class CrupdateInvoice
 {
@@ -12,7 +13,7 @@ class CrupdateInvoice
         $invoice = new Invoice([
             'subscription_id' => $data['subscription_id'],
             'paid' => $data['paid'],
-            'uuid' => str_random(10),
+            'uuid' => Str::random(10),
             'notes' => Arr::get($data, 'notes'),
         ]);
 

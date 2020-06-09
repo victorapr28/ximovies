@@ -11,6 +11,7 @@ use Common\Tags\Tag;
 use DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class LocalDataProvider implements DataProvider
 {
@@ -146,7 +147,7 @@ class LocalDataProvider implements DataProvider
         } else if (str_contains($titleCategory, ['keyword', 'genre'])) {
             list($_, $tagId) = explode(':', $titleCategory);
             $tagName = $this->tag->find($tagId)->name;
-            $relation = starts_with($titleCategory, 'keyword') ? 'keywords' : 'genres';
+            $relation = Str::startsWith($titleCategory, 'keyword') ? 'keywords' : 'genres';
             $query = $this->title
                 ->whereHas($relation, function(Builder $query) use($tagName) {
                     $query->where('name', $tagName);

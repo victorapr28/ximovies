@@ -5,6 +5,7 @@ use Common\Settings\DotEnvEditor;
 use Common\Settings\Settings;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Support\Str;
 
 class AppearanceSaver
 {
@@ -75,9 +76,9 @@ class AppearanceSaver
         foreach ($params as $key => $value) {
             if ($key === 'colors') {
                 $this->saveTheme($value);
-            } else if (starts_with($key, 'env.')) {
+            } else if (Str::startsWith($key, 'env.')) {
                 $this->saveEnvSetting($key, $value);
-            } else if (starts_with($key, 'custom-code.')) {
+            } else if (Str::startsWith($key, 'custom-code.')) {
                 $this->saveCustomCode($key, $value);
             } else if (is_string($value) && str_contains($value, 'branding-images')) {
                 $this->saveImageSetting($key, $value);

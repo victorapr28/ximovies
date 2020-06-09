@@ -5,6 +5,7 @@ namespace App\Services\Titles\Retrieve;
 use App\Person;
 use App\Title;
 use App\Services\Traits\HandlesTitleId;
+use Illuminate\Support\Str;
 
 class FindOrCreateMediaItem
 {
@@ -33,7 +34,7 @@ class FindOrCreateMediaItem
             list($id, $name) = explode('-', $id, 2);
             $model = $this->model->findOrFail($id);
             // make sure slug in url matches model name
-            if ($name !== str_slug($model->name)) {
+            if ($name !== Str::slug($model->name)) {
                 return abort(404);
             }
             return $model;

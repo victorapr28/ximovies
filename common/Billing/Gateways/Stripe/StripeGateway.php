@@ -134,7 +134,7 @@ class StripeGateway implements GatewayInterface
         ])->sendData(['default_source' => $cardReference]);
 
         //default source
-        $cardData = array_first($response->getData()['sources']['data'], function($card) use($cardReference) {
+        $cardData = Arr::first($response->getData()['sources']['data'], function($card) use($cardReference) {
             return $card['id'] === $cardReference;
         });
 
