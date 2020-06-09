@@ -168,8 +168,7 @@ return [
          */
         Laravel\Tinker\TinkerServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
-        Sentry\SentryLaravel\SentryLaravelServiceProvider::class,
-        Fideloper\Proxy\TrustedProxyServiceProvider::class,
+        Sentry\Laravel\ServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Common\CommonServiceProvider::class,
         Spatie\LaravelAnalytics\LaravelAnalyticsServiceProvider::class,
@@ -235,7 +234,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-        'Sentry' => Sentry\SentryLaravel\SentryFacade::class,
+        'Sentry' => Sentry\Laravel\Facade::class,
         'Image' => Intervention\Image\Facades\Image::class,
 
     ],
