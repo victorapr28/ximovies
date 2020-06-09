@@ -4,8 +4,6 @@ namespace BackblazeB2\Http;
 
 use BackblazeB2\ErrorHandler;
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Exception\GuzzleException;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Client wrapper around Guzzle.
@@ -20,9 +18,7 @@ class Client extends GuzzleClient
      * @param array  $options
      * @param bool   $asJson
      *
-     * @throws GuzzleException
-     *
-     * @return mixed|ResponseInterface|string
+     * @return mixed|string
      */
     public function request($method, $uri = null, array $options = [], $asJson = true)
     {

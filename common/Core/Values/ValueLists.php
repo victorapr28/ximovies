@@ -141,7 +141,7 @@ class ValueLists
      */
     private function loadAppValueFile($name, $params)
     {
-        $fileName = kebab_case($name);
+        $fileName = Str::kebab($name);
         $path = resource_path("lists/$fileName.json");
         if (file_exists($path)) {
             return json_decode(file_get_contents($path), true);

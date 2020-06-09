@@ -60,8 +60,8 @@ trait HandlesSeo
 
         // get resource name and verb from route action
         preg_match('/\\\(\w+?)Controller@(\w+)$/', $uses, $matches);
-        $resource = kebab_case($matches[1]);
-        $verb = kebab_case($matches[2]);
+        $resource = Str::kebab($matches[1]);
+        $verb = Str::kebab($matches[2]);
         return "$resource.$verb";
     }
 }

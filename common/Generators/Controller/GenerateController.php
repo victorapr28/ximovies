@@ -24,7 +24,7 @@ class GenerateController extends ControllerMakeCommand
 
     protected function getRouteStub()
     {
-        $resourceName = kebab_case(class_basename($this->option('model')));
+        $resourceName = Str::kebab(class_basename($this->option('model')));
         $resourceComment = strtoupper(title_case($this->option('model')));
         return str_replace(
             ['dummyResourceName', 'dummyControllerName', 'dummyResourceComment'],

@@ -6,47 +6,49 @@ use BackblazeB2\Exceptions\NotFoundException;
 use BackblazeB2\Exceptions\ValidationException;
 use BackblazeB2\Http\Client as HttpClient;
 use Carbon\Carbon;
-use GuzzleHttp\Exception\GuzzleException;
 
 class Client
 {
-    private const B2_API_BASE_URL = 'https://api.backblazeb2.com';
-    private const B2_API_V1 = '/b2api/v1/';
     protected $accountId;
     protected $applicationKey;
+
     protected $authToken;
     protected $apiUrl;
     protected $downloadUrl;
+
     protected $client;
-    protected $reAuthTime;
+
+    protected $reauthTime;
     protected $authTimeoutSeconds;
 
     /**
-     * Accepts the account ID, application key and an optional array of options.
+     * Client constructor. Accepts the account ID, application key and an optional array of options.
      *
      * @param $accountId
      * @param $applicationKey
      * @param array $options
-     *
-     * @throws \Exception
      */
     public function __construct($accountId, $applicationKey, array $options = [])
     {
         $this->accountId = $accountId;
         $this->applicationKey = $applicationKey;
 
-        $this->authTimeoutSeconds = 12 * 60 * 60; // 12 hour default
         if (isset($options['auth_timeout_seconds'])) {
             $this->authTimeoutSeconds = $options['auth_timeout_seconds'];
+        } else {
+            $this->authTimeoutSeconds = 12 * 60 * 60;  // 12 hour default
         }
 
         // set reauthorize time to force an authentication to take place
-        $this->reAuthTime = Carbon::now('UTC')->subSeconds($this->authTimeoutSeconds * 2);
+        $this->reauthTime = Carbon::now('UTC')->subSeconds($this->authTimeoutSeconds * 2);
 
-        $this->client = new HttpClient(['exceptions' => false]);
         if (isset($options['client'])) {
             $this->client = $options['client'];
+        } else {
+            $this->client = new HttpClient(['exceptions' => false]);
         }
+
+        $this->authorizeAccount();
     }
 
     /**
@@ -66,10 +68,17 @@ class Client
             );
         }
 
-        $response = $this->sendAuthorizedRequest('POST', 'b2_create_bucket', [
-            'accountId'  => $this->accountId,
-            'bucketName' => $options['BucketName'],
-            'bucketType' => $options['BucketType'],
+        $this->authorizeAccount();
+
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_create_bucket', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'accountId'  => $this->accountId,
+                'bucketName' => $options['BucketName'],
+                'bucketType' => $options['BucketType'],
+            ],
         ]);
 
         return new Bucket($response['bucketId'], $response['bucketName'], $response['bucketType']);
@@ -96,10 +105,17 @@ class Client
             $options['BucketId'] = $this->getBucketIdFromName($options['BucketName']);
         }
 
-        $response = $this->sendAuthorizedRequest('POST', 'b2_update_bucket', [
-            'accountId'  => $this->accountId,
-            'bucketId'   => $options['BucketId'],
-            'bucketType' => $options['BucketType'],
+        $this->authorizeAccount();
+
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_update_bucket', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'accountId'  => $this->accountId,
+                'bucketId'   => $options['BucketId'],
+                'bucketType' => $options['BucketType'],
+            ],
         ]);
 
         return new Bucket($response['bucketId'], $response['bucketName'], $response['bucketType']);
@@ -114,8 +130,15 @@ class Client
     {
         $buckets = [];
 
-        $response = $this->sendAuthorizedRequest('POST', 'b2_list_buckets', [
-            'accountId' => $this->accountId,
+        $this->authorizeAccount();
+
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_list_buckets', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'accountId' => $this->accountId,
+            ],
         ]);
 
         foreach ($response['buckets'] as $bucket) {
@@ -138,9 +161,16 @@ class Client
             $options['BucketId'] = $this->getBucketIdFromName($options['BucketName']);
         }
 
-        $this->sendAuthorizedRequest('POST', 'b2_delete_bucket', [
-            'accountId' => $this->accountId,
-            'bucketId'  => $options['BucketId'],
+        $this->authorizeAccount();
+
+        $this->client->request('POST', $this->apiUrl.'/b2_delete_bucket', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'accountId' => $this->accountId,
+                'bucketId'  => $options['BucketId'],
+            ],
         ]);
 
         return true;
@@ -164,10 +194,16 @@ class Client
             $options['BucketId'] = $this->getBucketIdFromName($options['BucketName']);
         }
 
-        // Retrieve the URL that we should be uploading to.
+        $this->authorizeAccount();
 
-        $response = $this->sendAuthorizedRequest('POST', 'b2_get_upload_url', [
-            'bucketId' => $options['BucketId'],
+        // Retrieve the URL that we should be uploading to.
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_get_upload_url', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'bucketId' => $options['BucketId'],
+            ],
         ]);
 
         $uploadEndpoint = $response['uploadUrl'];
@@ -225,7 +261,7 @@ class Client
      *
      * @param array $options
      *
-     * @return bool
+     * @return bool|mixed|string
      */
     public function download(array $options)
     {
@@ -288,12 +324,17 @@ class Client
 
         // B2 returns, at most, 1000 files per "page". Loop through the pages and compile an array of File objects.
         while (true) {
-            $response = $this->sendAuthorizedRequest('POST', 'b2_list_file_names', [
-                'bucketId'      => $options['BucketId'],
-                'startFileName' => $nextFileName,
-                'maxFileCount'  => $maxFileCount,
-                'prefix'        => $prefix,
-                'delimiter'     => $delimiter,
+            $response = $this->client->request('POST', $this->apiUrl.'/b2_list_file_names', [
+                'headers' => [
+                    'Authorization' => $this->authToken,
+                ],
+                'json' => [
+                    'bucketId'      => $options['BucketId'],
+                    'startFileName' => $nextFileName,
+                    'maxFileCount'  => $maxFileCount,
+                    'prefix'        => $prefix,
+                    'delimiter'     => $delimiter,
+                ],
             ]);
 
             foreach ($response['files'] as $file) {
@@ -333,7 +374,6 @@ class Client
      *
      * @param array $options
      *
-     * @throws GuzzleException
      * @throws NotFoundException If no file id was provided and BucketName + FileName does not resolve to a file, a NotFoundException is thrown.
      *
      * @return File
@@ -348,8 +388,15 @@ class Client
             }
         }
 
-        $response = $this->sendAuthorizedRequest('POST', 'b2_get_file_info', [
-            'fileId' => $options['FileId'],
+        $this->authorizeAccount();
+
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_get_file_info', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'fileId' => $options['FileId'],
+            ],
         ]);
 
         return new File(
@@ -370,9 +417,6 @@ class Client
      *
      * @param array $options
      *
-     * @throws GuzzleException
-     * @throws NotFoundException
-     *
      * @return bool
      */
     public function deleteFile(array $options)
@@ -389,9 +433,16 @@ class Client
             $options['FileId'] = $file->getId();
         }
 
-        $this->sendAuthorizedRequest('POST', 'b2_delete_file_version', [
-            'fileName' => $options['FileName'],
-            'fileId'   => $options['FileId'],
+        $this->authorizeAccount();
+
+        $this->client->request('POST', $this->apiUrl.'/b2_delete_file_version', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'fileName' => $options['FileName'],
+                'fileId'   => $options['FileId'],
+            ],
         ]);
 
         return true;
@@ -399,22 +450,22 @@ class Client
 
     /**
      * Authorize the B2 account in order to get an auth token and API/download URLs.
+     *
+     * @throws \Exception
      */
     protected function authorizeAccount()
     {
-        if (Carbon::now('UTC')->timestamp < $this->reAuthTime->timestamp) {
-            return;
+        if (Carbon::now('UTC')->timestamp > $this->reauthTime->timestamp) {
+            $response = $this->client->request('GET', 'https://api.backblazeb2.com/b2api/v1/b2_authorize_account', [
+                'auth' => [$this->accountId, $this->applicationKey],
+            ]);
+
+            $this->authToken = $response['authorizationToken'];
+            $this->apiUrl = $response['apiUrl'].'/b2api/v1';
+            $this->downloadUrl = $response['downloadUrl'];
+            $this->reauthTime = Carbon::now('UTC');
+            $this->reauthTime->addSeconds($this->authTimeoutSeconds);
         }
-
-        $response = $this->client->request('GET', self::B2_API_BASE_URL.self::B2_API_V1.'/b2_authorize_account', [
-            'auth' => [$this->accountId, $this->applicationKey],
-        ]);
-
-        $this->authToken = $response['authorizationToken'];
-        $this->apiUrl = $response['apiUrl'].self::B2_API_V1;
-        $this->downloadUrl = $response['downloadUrl'];
-        $this->reAuthTime = Carbon::now('UTC');
-        $this->reAuthTime->addSeconds($this->authTimeoutSeconds);
     }
 
     /**
@@ -422,7 +473,7 @@ class Client
      *
      * @param $name
      *
-     * @return mixed
+     * @return null
      */
     protected function getBucketIdFromName($name)
     {
@@ -440,7 +491,7 @@ class Client
      *
      * @param $id
      *
-     * @return mixed
+     * @return null
      */
     protected function getBucketNameFromId($id)
     {
@@ -453,12 +504,6 @@ class Client
         }
     }
 
-    /**
-     * @param $bucketName
-     * @param $fileName
-     *
-     * @return mixed
-     */
     protected function getFileIdFromBucketAndFileName($bucketName, $fileName)
     {
         $files = $this->listFiles([
@@ -474,11 +519,11 @@ class Client
     }
 
     /**
-     * Uploads a large file using b2 large file procedure.
+     * Uploads a large file using b2 large file proceedure.
      *
      * @param array $options
      *
-     * @return File
+     * @return \BackblazeB2\File
      */
     public function uploadLargeFile(array $options)
     {
@@ -521,39 +566,53 @@ class Client
     }
 
     /**
-     * Starts the large file upload process.
+     * starts the large file upload process.
      *
      * @param $fileName
      * @param $contentType
      * @param $bucketId
      *
-     * @return mixed
+     * @return array
      */
     protected function startLargeFile($fileName, $contentType, $bucketId)
     {
-        return $this->sendAuthorizedRequest('POST', 'b2_start_large_file', [
-            'fileName'      => $fileName,
-            'contentType'   => $contentType,
-            'bucketId'      => $bucketId,
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_start_large_file', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'fileName'      => $fileName,
+                'contentType'   => $contentType,
+                'bucketId'      => $bucketId,
+            ],
         ]);
+
+        return $response;
     }
 
     /**
-     * Gets the url for the next large file part upload.
+     * gets the url for the next large file part upload.
      *
      * @param $fileId
      *
-     * @return mixed
+     * @return array
      */
     protected function getUploadPartUrl($fileId)
     {
-        return $this->sendAuthorizedRequest('POST', 'b2_get_upload_part_url', [
-            'fileId' => $fileId,
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_get_upload_part_url', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'fileId' => $fileId,
+            ],
         ]);
+
+        return $response;
     }
 
     /**
-     * Uploads the file as "parts" of 100MB each.
+     * uploads the file as "parts" of 100MB each.
      *
      * @param $filePath
      * @param $uploadUrl
@@ -610,18 +669,23 @@ class Client
     }
 
     /**
-     * Finishes the large file upload procedure.
+     * finishes the large file upload proceedure.
      *
-     * @param       $fileId
+     * @param $fileId
      * @param array $sha1s
      *
      * @return File
      */
     protected function finishLargeFile($fileId, array $sha1s)
     {
-        $response = $this->sendAuthorizedRequest('POST', 'b2_finish_large_file', [
-            'fileId'        => $fileId,
-            'partSha1Array' => $sha1s,
+        $response = $this->client->request('POST', $this->apiUrl.'/b2_finish_large_file', [
+            'headers' => [
+                'Authorization' => $this->authToken,
+            ],
+            'json' => [
+                'fileId'        => $fileId,
+                'partSha1Array' => $sha1s,
+            ],
         ]);
 
         return new File(
@@ -635,26 +699,5 @@ class Client
             $response['action'],
             $response['uploadTimestamp']
         );
-    }
-
-    /**
-     * Sends a authorized request to b2 API.
-     *
-     * @param string $method
-     * @param string $route
-     * @param array  $json
-     *
-     * @return mixed
-     */
-    protected function sendAuthorizedRequest($method, $route, $json = [])
-    {
-        $this->authorizeAccount();
-
-        return $this->client->request($method, $this->apiUrl.$route, [
-            'headers' => [
-                'Authorization' => $this->authToken,
-            ],
-            'json' => $json,
-        ]);
     }
 }

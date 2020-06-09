@@ -36,6 +36,6 @@ class BaseUrlGenerator implements AppUrlGenerator
      */
     public function __call($name, $arguments)
     {
-        return url(kebab_case($name));
+        return url(Str::kebab($name));
     }
 }

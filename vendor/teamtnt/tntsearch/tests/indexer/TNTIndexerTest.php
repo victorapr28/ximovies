@@ -4,16 +4,18 @@ use TeamTNT\TNTSearch\Indexer\TNTIndexer;
 use TeamTNT\TNTSearch\Support\TokenizerInterface;
 use TeamTNT\TNTSearch\TNTSearch;
 
-class TNTIndexerTest extends PHPUnit_Framework_TestCase
+class TNTIndexerTest extends PHPUnit\Framework\TestCase
 {
     protected $indexName = "testIndex";
     protected $config    = [
-        'driver'   => 'sqlite',
-        'database' => __DIR__ . '/../_files/articles.sqlite',
-        'host'     => 'localhost',
-        'username' => 'testUser',
-        'password' => 'testPass',
-        'storage'  => __DIR__ . '/../_files/',
+        'driver'    => 'sqlite',
+        'database'  => __DIR__.'/../_files/articles.sqlite',
+        'host'      => 'localhost',
+        'username'  => 'testUser',
+        'password'  => 'testPass',
+        'storage'   => __DIR__.'/../_files/',
+        'tokenizer' => TeamTNT\TNTSearch\Support\ProductTokenizer::class
+
     ];
 
     public function testSearch()
@@ -42,9 +44,9 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
     {
         $config = [
             'driver'    => 'filesystem',
-            'storage'   => __DIR__ . '/../_files/',
-            'location'  => __DIR__ . '/../_files/articles/',
-            'extension' => 'txt',
+            'storage'   => __DIR__.'/../_files/',
+            'location'  => __DIR__.'/../_files/articles/',
+            'extension' => 'txt'
         ];
 
         $tnt = new TNTSearch;
@@ -74,12 +76,12 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $indexer->disableOutput = true;
         $indexer->run();
 
-        $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);
+        $this->index = new PDO('sqlite:'.$this->config['storage'].$this->indexName);
         $query       = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs        = $this->index->query($query);
         $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
         $this->assertEquals('TeamTNT\TNTSearch\Stemmer\CroatianStemmer', $value);
-        
+
         $tnt->selectIndex($this->indexName);
         $this->assertEquals('TeamTNT\TNTSearch\Stemmer\CroatianStemmer', get_class($tnt->getStemmer()));
     }
@@ -96,7 +98,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
         $indexer->disableOutput = true;
         $indexer->run();
 
-        $this->index = new PDO('sqlite:' . $this->config['storage'] . $this->indexName);
+        $this->index = new PDO('sqlite:'.$this->config['storage'].$this->indexName);
         $query       = "SELECT * FROM info WHERE key = 'stemmer'";
         $docs        = $this->index->query($query);
         $value       = $docs->fetch(PDO::FETCH_ASSOC)['value'];
@@ -129,19 +131,25 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        if (file_exists(__DIR__ . '/../_files/' . $this->indexName)) {
-            unlink(__DIR__ . '/../_files/' . $this->indexName);
+        if (file_exists(__DIR__.'/../_files/'.$this->indexName)) {
+            unlink(__DIR__.'/../_files/'.$this->indexName);
         }
     }
 
     public function testSetTokenizer()
     {
-        $someTokenizer = new SomeTokenizer;
 
-        $indexer = new TNTIndexer;
-        $indexer->setTokenizer($someTokenizer);
+        $tnt = new TNTSearch;
+
+        $tnt->loadConfig($this->config);
+
+        $indexer = $tnt->createIndex($this->indexName);
+        $indexer->query('SELECT id, title, article FROM articles;');
+        $indexer->setTokenizer(new SomeTokenizer);
+        $indexer->disableOutput = true;
+        $indexer->run();
 
         $this->assertInstanceOf(TokenizerInterface::class, $indexer->tokenizer);
 
@@ -156,7 +164,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 
         $tnt->loadConfig($this->config);
 
-        $indexer                = $tnt->createIndex($this->indexName);
+        $indexer = $tnt->createIndex($this->indexName);
         $indexer->setPrimaryKey('post_id');
         $indexer->disableOutput = true;
         $indexer->query('SELECT * FROM posts;');
@@ -173,7 +181,7 @@ class TNTIndexerTest extends PHPUnit_Framework_TestCase
 class SomeTokenizer implements TokenizerInterface
 {
 
-    public function tokenize($text)
+    public function tokenize($text, $stopwords = [])
     {
         return preg_split("/[^\p{L}\p{N}-]+/u", mb_strtolower($text), -1, PREG_SPLIT_NO_EMPTY);
     }

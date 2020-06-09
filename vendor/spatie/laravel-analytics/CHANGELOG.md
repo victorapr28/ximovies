@@ -1,12 +1,106 @@
 # Changelog
 
-All Notable changes to Laravel-Analytics will be documented in this file
+All notable changes to Laravel-Analytics will be documented in this file
 
-## 1.4.1 - 2015-05-12
+## 3.9.0 - 2020-03-03
+
+- add support for Laravel 7
+
+## 3.8.1 - 2019-11-23
+
+- allow symfony 5 components
+
+## 3.8.0 - 2019-09-04
+
+- add support for Laravel 6
+- use Symfony's PSR-16 cache adapter
+
+## 3.7.1 - 2019-03-05
+
+- fix cache lifetime
+
+## 3.7.0 - 2019-02-27
+
+- drop support for Laravel 5.7 and lower
+- drop support for PHP 7.1 and lower
+
+## 3.6.3 - 2019-02-27
+
+- add support for Laravel 5.8
+
+## 3.6.2 - 2018-08-24
+
+- add support for Laravel 5.7
+
+## 3.6.1 - 2018-05-04
+
+- fix infinite loop
+
+## 3.6.0 - 2018-04-30
+
+- add pagination to `performQuery`
+
+## 3.5.0 - 2018-03-17
+- `service_account_credentials_json` now also accepts an array
+
+## 3.4.1 - 2018-02-08
+- add compatibility with Laravel 5.6
+
+## 3.4.0 - 2018-01-08
+- allow dynamic modification of config
+
+## 3.3.0 - 2017-11-03
+- add `months` and `years` methods to `Period`
+
+## 3.2.0 - 2017-10-30
+- add `fetchUserTypes`
+
+## 3.1.0 - 2017-08-31
+- add compatibility with Laravel 5.5
+
+## 3.0.1 - 2017-06-16
+- make publishing the config file optional
+
+## 3.0.0 - 2016-08-23
+- add support for `v2` of the Google API
+- renamed config file from `laravel-analytics.php` to `analytics.php`
+- dropped support for anything lower than Laravel 5.4
+
+## 2.4.0 - 2017-01-23
+- add support for Laravel 5.4
+- dropped support for anything lower than Laravel 5.3
+
+## 2.3.1 - 2016-10-14
+- improve exception message
+
+## 2.3.0 - 2016-10-20
+- added `fetchTotalVisitorsAndPageViews`
+
+## 2.2.2 - 2016-08-23
+- added L5.3 compatibility
+
+## 2.2.1 - 2016-08-02
+- added a fallback for the cache path setting
+
+## 2.2.0 - 2016-07-23
+- added config setting to specify cache path
+
+## 2.1.0 - 2016-06-22
+- added `pageTitle` to `fetchVisitorsAndPageViews` and `fetchMostVisitedPages`
+- fixed `credentialsJsonDoesNotExist` exception
+
+## 2.0.0 - 2016-06-20
+
+- refactored all methods
+- introduced `Spatie\Analytics\Period` to specify date ranges
+- the package now uses json credentials instead of .p12 file
+- the `Spatie\Analytics\Analtyics` class is much easier to extend
+
+## 1.4.1 - 2016-05-12
 
 - fixes a bug introduced in 1.4.0 where the check whether a p12 certificate is present was broken 
 
-## 1.4.0 - 2015-05-11
+## 1.4.0 - 2016-05-11
 
 **This version does not work, please upgrade to 1.4.0**
 

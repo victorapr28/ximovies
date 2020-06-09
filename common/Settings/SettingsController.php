@@ -135,7 +135,7 @@ class SettingsController extends BaseController {
                 // Common\Settings\Validators\GoogleLoginValidator => GoogleLoginValidator
                 $class = (new ReflectionClass($validator))->getShortName();
                 // GoogleLoginValidator => google-login-validator => google => google_group
-                $groupName = explode('-', kebab_case($class))[0] . '_group';
+                $groupName = explode('-', Str::kebab($class))[0] . '_group';
                 return $this->error([$groupName => str_limit($e->getMessage(), 200)]);
             }
         }

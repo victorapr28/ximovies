@@ -23,8 +23,10 @@ class TNTIndexer
     protected $index              = null;
     protected $dbh                = null;
     protected $primaryKey         = null;
+    protected $excludePrimaryKey  = true;
     public $stemmer               = null;
     public $tokenizer             = null;
+    public $stopWords             = [];
     public $filereader            = null;
     public $config                = [];
     protected $query              = "";
@@ -35,6 +37,7 @@ class TNTIndexer
     public $inMemory              = true;
     public $steps                 = 1000;
     public $indexName             = "";
+    public $statementsPrepared    = false;
 
     public function __construct()
     {
@@ -49,6 +52,13 @@ class TNTIndexer
     public function setTokenizer(TokenizerInterface $tokenizer)
     {
         $this->tokenizer = $tokenizer;
+        $class           = get_class($tokenizer);
+        $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'tokenizer', '$class')");
+    }
+
+    public function setStopWords(array $stopWords)
+    {
+        $this->stopWords = $stopWords;
     }
 
     /**
@@ -58,8 +68,13 @@ class TNTIndexer
     {
         $this->config            = $config;
         $this->config['storage'] = rtrim($this->config['storage'], '/').'/';
+
         if (!isset($this->config['driver'])) {
             $this->config['driver'] = "";
+        }
+
+        if (isset($this->config['tokenizer'])) {
+            $this->tokenizer = new $this->config['tokenizer'];
         }
 
     }
@@ -96,6 +111,16 @@ class TNTIndexer
         $this->primaryKey = $primaryKey;
     }
 
+    public function excludePrimaryKey()
+    {
+        $this->excludePrimaryKey = true;
+    }
+
+    public function includePrimaryKey()
+    {
+        $this->excludePrimaryKey = false;
+    }
+
     public function setStemmer($stemmer)
     {
         $this->stemmer = $stemmer;
@@ -128,6 +153,16 @@ class TNTIndexer
     public function setFileReader($filereader)
     {
         $this->filereader = $filereader;
+    }
+
+    public function prepareStatementsForIndex()
+    {
+        if (!$this->statementsPrepared) {
+            $this->insertWordlistStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
+            $this->selectWordlistStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
+            $this->updateWordlistStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword");
+            $this->statementsPrepared = true;
+        }
     }
 
     /**
@@ -177,9 +212,10 @@ class TNTIndexer
         $this->index->exec("INSERT INTO info ( 'key', 'value') values ( 'total_documents', 0)");
 
         $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'term_id_index' ON doclist ('term_id' COLLATE BINARY);");
+        $this->index->exec("CREATE INDEX IF NOT EXISTS 'main'.'doc_id_index' ON doclist ('doc_id');");
 
-        $connector = $this->createConnector($this->config);
         if (!$this->dbh) {
+            $connector = $this->createConnector($this->config);
             $this->dbh = $connector->connect($this->config);
         }
         return $this;
@@ -287,15 +323,37 @@ class TNTIndexer
 
         foreach ($objects as $name => $object) {
             $name = str_replace($path.'/', '', $name);
-            if (stringEndsWith($name, $this->config['extension']) && !in_array($name, $exclude)) {
+
+            if (is_callable($this->config['extension'])) {
+                $includeFile = $this->config['extension']($object);
+            } elseif (is_array($this->config['extension'])) {
+                $includeFile = in_array($object->getExtension(), $this->config['extension']);
+            } else {
+                $includeFile = stringEndsWith($name, $this->config['extension']);
+            }
+
+            if ($includeFile && !in_array($name, $exclude)) {
                 $counter++;
                 $file = [
                     'id'      => $counter,
                     'name'    => $name,
                     'content' => $this->filereader->read($object)
                 ];
-                $this->processDocument(new Collection($file));
-                $this->index->exec("INSERT INTO filemap ( 'id', 'path') values ( $counter, '$object')");
+                $fileCollection = new Collection($file);
+
+                if (property_exists($this->filereader, 'fileFilterCallback')
+                    && is_callable($this->filereader->fileFilterCallback)) {
+                    $fileCollection = $fileCollection->filter($this->filereader->fileFilterCallback);
+                }
+                if (property_exists($this->filereader, 'fileMapCallback')
+                    && is_callable($this->filereader->fileMapCallback)) {
+                    $fileCollection = $fileCollection->map($this->filereader->fileMapCallback);
+                }
+
+                $this->processDocument($fileCollection);
+                $statement = $this->index->prepare("INSERT INTO filemap ( 'id', 'path') values ( $counter, :object)");
+                $statement->bindParam(':object', $object);
+                $statement->execute();
                 $this->info("Processed $counter $object");
             }
         }
@@ -311,10 +369,17 @@ class TNTIndexer
 
     public function processDocument($row)
     {
-        $stems = $row->map(function ($column, $name) {
-            return $this->stemText($column);
+        $documentId = $row->get($this->getPrimaryKey());
+
+        if ($this->excludePrimaryKey) {
+            $row->forget($this->getPrimaryKey());
+        }
+
+        $stems = $row->map(function ($columnContent, $columnName) use ($row) {
+            return $this->stemText($columnContent);
         });
-        $this->saveToIndex($stems, $row->get($this->getPrimaryKey()));
+
+        $this->saveToIndex($stems, $documentId);
     }
 
     public function insert($document)
@@ -379,7 +444,7 @@ class TNTIndexer
         if ($this->decodeHTMLEntities) {
             $text = html_entity_decode($text);
         }
-        return $this->tokenizer->tokenize($text);
+        return $this->tokenizer->tokenize($text, $this->stopWords);
     }
 
     public function decodeHtmlEntities($value = true)
@@ -389,6 +454,7 @@ class TNTIndexer
 
     public function saveToIndex($stems, $docId)
     {
+        $this->prepareStatementsForIndex();
         $terms = $this->saveWordlist($stems);
         $this->saveDoclist($terms, $docId);
         $this->saveHitList($stems, $docId, $terms);
@@ -417,16 +483,12 @@ class TNTIndexer
             }
         });
 
-        $insertStmt = $this->index->prepare("INSERT INTO wordlist (term, num_hits, num_docs) VALUES (:keyword, :hits, :docs)");
-        $selectStmt = $this->index->prepare("SELECT * FROM wordlist WHERE term like :keyword LIMIT 1");
-        $updateStmt = $this->index->prepare("UPDATE wordlist SET num_docs = num_docs + :docs, num_hits = num_hits + :hits WHERE term = :keyword");
-
         foreach ($terms as $key => $term) {
             try {
-                $insertStmt->bindParam(":keyword", $key);
-                $insertStmt->bindParam(":hits", $term['hits']);
-                $insertStmt->bindParam(":docs", $term['docs']);
-                $insertStmt->execute();
+                $this->insertWordlistStmt->bindParam(":keyword", $key);
+                $this->insertWordlistStmt->bindParam(":hits", $term['hits']);
+                $this->insertWordlistStmt->bindParam(":docs", $term['docs']);
+                $this->insertWordlistStmt->execute();
 
                 $terms[$key]['id'] = $this->index->lastInsertId();
                 if ($this->inMemory) {
@@ -434,21 +496,26 @@ class TNTIndexer
                 }
             } catch (\Exception $e) {
                 if ($e->getCode() == 23000) {
-                    $updateStmt->bindValue(':docs', $term['docs']);
-                    $updateStmt->bindValue(':hits', $term['hits']);
-                    $updateStmt->bindValue(':keyword', $key);
-                    $updateStmt->execute();
+                    $this->updateWordlistStmt->bindValue(':docs', $term['docs']);
+                    $this->updateWordlistStmt->bindValue(':hits', $term['hits']);
+                    $this->updateWordlistStmt->bindValue(':keyword', $key);
+                    $this->updateWordlistStmt->execute();
                     if (!$this->inMemory) {
-                        $selectStmt->bindValue(':keyword', $key);
-                        $selectStmt->execute();
-                        $res               = $selectStmt->fetch(PDO::FETCH_ASSOC);
+                        $this->selectWordlistStmt->bindValue(':keyword', $key);
+                        $this->selectWordlistStmt->execute();
+                        $res               = $this->selectWordlistStmt->fetch(PDO::FETCH_ASSOC);
                         $terms[$key]['id'] = $res['id'];
                     } else {
                         $terms[$key]['id'] = $this->inMemoryTerms[$key];
                     }
                 } else {
-                    echo $e->getMessage()."\n";
+                    echo "Error while saving wordlist: ".$e->getMessage()."\n";
                 }
+
+                // Statements must be refreshed, because in this state they have error attached to them.
+                $this->statementsPrepared = false;
+                $this->prepareStatementsForIndex();
+
             }
         }
         return $terms;

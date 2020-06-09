@@ -2,37 +2,46 @@
 
 namespace Laravel\Scout\Engines;
 
-use Laravel\Scout\Builder;
-use AlgoliaSearch\Client as Algolia;
-use Illuminate\Database\Eloquent\Collection;
+use Algolia\AlgoliaSearch\SearchClient as Algolia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Builder;
 
 class AlgoliaEngine extends Engine
 {
     /**
      * The Algolia client.
      *
-     * @var \AlgoliaSearch\Client
+     * @var \Algolia\AlgoliaSearch\SearchClient
      */
     protected $algolia;
 
     /**
+     * Determines if soft deletes for Scout are enabled or not.
+     *
+     * @var bool
+     */
+    protected $softDelete;
+
+    /**
      * Create a new engine instance.
      *
-     * @param  \AlgoliaSearch\Client  $algolia
+     * @param  \Algolia\AlgoliaSearch\SearchClient  $algolia
+     * @param  bool  $softDelete
      * @return void
      */
-    public function __construct(Algolia $algolia)
+    public function __construct(Algolia $algolia, $softDelete = false)
     {
         $this->algolia = $algolia;
+        $this->softDelete = $softDelete;
     }
 
     /**
      * Update the given model in the index.
      *
      * @param  \Illuminate\Database\Eloquent\Collection  $models
-     * @throws \AlgoliaSearch\AlgoliaException
      * @return void
+     *
+     * @throws \Algolia\AlgoliaSearch\Exceptions\AlgoliaException
      */
     public function update($models)
     {
@@ -42,21 +51,25 @@ class AlgoliaEngine extends Engine
 
         $index = $this->algolia->initIndex($models->first()->searchableAs());
 
-        if ($this->usesSoftDelete($models->first()) && config('scout.soft_delete', false)) {
+        if ($this->usesSoftDelete($models->first()) && $this->softDelete) {
             $models->each->pushSoftDeleteMetadata();
         }
 
-        $index->addObjects($models->map(function ($model) {
-            $array = array_merge(
-                $model->toSearchableArray(), $model->scoutMetadata()
-            );
-
-            if (empty($array)) {
+        $objects = $models->map(function ($model) {
+            if (empty($searchableData = $model->toSearchableArray())) {
                 return;
             }
 
-            return array_merge(['objectID' => $model->getKey()], $array);
-        })->filter()->values()->all());
+            return array_merge(
+                ['objectID' => $model->getScoutKey()],
+                $searchableData,
+                $model->scoutMetadata()
+            );
+        })->filter()->values()->all();
+
+        if (! empty($objects)) {
+            $index->saveObjects($objects);
+        }
     }
 
     /**
@@ -71,7 +84,7 @@ class AlgoliaEngine extends Engine
 
         $index->deleteObjects(
             $models->map(function ($model) {
-                return $model->getKey();
+                return $model->getScoutKey();
             })->values()->all()
         );
     }
@@ -159,31 +172,27 @@ class AlgoliaEngine extends Engine
     /**
      * Map the given results to instances of the given model.
      *
+     * @param  \Laravel\Scout\Builder  $builder
      * @param  mixed  $results
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function map($results, $model)
+    public function map(Builder $builder, $results, $model)
     {
         if (count($results['hits']) === 0) {
-            return Collection::make();
+            return $model->newCollection();
         }
 
-        $builder = in_array(SoftDeletes::class, class_uses_recursive($model))
-                    ? $model->withTrashed() : $model->newQuery();
+        $objectIds = collect($results['hits'])->pluck('objectID')->values()->all();
+        $objectIdPositions = array_flip($objectIds);
 
-        $models = $builder->whereIn(
-            $model->getQualifiedKeyName(),
-            collect($results['hits'])->pluck('objectID')->values()->all()
-        )->get()->keyBy($model->getKeyName());
-
-        return Collection::make($results['hits'])->map(function ($hit) use ($models) {
-            $key = $hit['objectID'];
-
-            if (isset($models[$key])) {
-                return $models[$key];
-            }
-        })->filter()->values();
+        return $model->getScoutModelsByIds(
+                $builder, $objectIds
+            )->filter(function ($model) use ($objectIds) {
+                return in_array($model->getScoutKey(), $objectIds);
+            })->sortBy(function ($model) use ($objectIdPositions) {
+                return $objectIdPositions[$model->getScoutKey()];
+            })->values();
     }
 
     /**
@@ -198,6 +207,19 @@ class AlgoliaEngine extends Engine
     }
 
     /**
+     * Flush all of the model's records from the engine.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return void
+     */
+    public function flush($model)
+    {
+        $index = $this->algolia->initIndex($model->searchableAs());
+
+        $index->clearObjects();
+    }
+
+    /**
      * Determine if the given model uses soft deletes.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
@@ -206,5 +228,17 @@ class AlgoliaEngine extends Engine
     protected function usesSoftDelete($model)
     {
         return in_array(SoftDeletes::class, class_uses_recursive($model));
+    }
+
+    /**
+     * Dynamically call the Algolia client instance.
+     *
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        return $this->algolia->$method(...$parameters);
     }
 }

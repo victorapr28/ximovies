@@ -171,7 +171,6 @@ return [
         Sentry\Laravel\ServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Common\CommonServiceProvider::class,
-        Spatie\LaravelAnalytics\LaravelAnalyticsServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
 

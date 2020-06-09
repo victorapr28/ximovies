@@ -2,9 +2,9 @@
 
 namespace Laravel\Scout;
 
-use Laravel\Scout\Jobs\MakeSearchable;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection as BaseCollection;
+use Laravel\Scout\Jobs\MakeSearchable;
 
 trait Searchable
 {
@@ -84,17 +84,30 @@ trait Searchable
     }
 
     /**
+     * Determine if the model should be searchable.
+     *
+     * @return bool
+     */
+    public function shouldBeSearchable()
+    {
+        return true;
+    }
+
+    /**
      * Perform a search against the model's indexed data.
      *
      * @param  string  $query
-     * @param  Closure  $callback
+     * @param  \Closure  $callback
      * @return \Laravel\Scout\Builder
      */
-    public static function search($query, $callback = null)
+    public static function search($query = '', $callback = null)
     {
-        return new Builder(
-            new static, $query, $callback, config('scout.soft_delete', false)
-        );
+        return app(Builder::class, [
+            'model' => new static,
+            'query' => $query,
+            'callback' => $callback,
+            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
+        ]);
     }
 
     /**
@@ -104,13 +117,12 @@ trait Searchable
      */
     public static function makeAllSearchable()
     {
-        $self = new static();
+        $self = new static;
 
-        $softDeletes = in_array(SoftDeletes::class, class_uses_recursive(get_called_class())) &&
-                       config('scout.soft_delete', false);
+        $softDelete = static::usesSoftDelete() && config('scout.soft_delete', false);
 
         $self->newQuery()
-            ->when($softDeletes, function ($query) {
+            ->when($softDelete, function ($query) {
                 $query->withTrashed();
             })
             ->orderBy($self->getKeyName())
@@ -124,7 +136,7 @@ trait Searchable
      */
     public function searchable()
     {
-        Collection::make([$this])->searchable();
+        $this->newCollection([$this])->searchable();
     }
 
     /**
@@ -134,11 +146,9 @@ trait Searchable
      */
     public static function removeAllFromSearch()
     {
-        $self = new static();
+        $self = new static;
 
-        $self->newQuery()
-            ->orderBy($self->getKeyName())
-            ->unsearchable();
+        $self->searchableUsing()->flush($self);
     }
 
     /**
@@ -148,7 +158,28 @@ trait Searchable
      */
     public function unsearchable()
     {
-        Collection::make([$this])->unsearchable();
+        $this->newCollection([$this])->unsearchable();
+    }
+
+    /**
+     * Get the requested models from an array of object IDs.
+     *
+     * @param  \Laravel\Scout\Builder  $builder
+     * @param  array  $ids
+     * @return mixed
+     */
+    public function getScoutModelsByIds(Builder $builder, array $ids)
+    {
+        $query = static::usesSoftDelete()
+            ? $this->withTrashed() : $this->newQuery();
+
+        if ($builder->queryCallback) {
+            call_user_func($builder->queryCallback, $query);
+        }
+
+        return $query->whereIn(
+            $this->getScoutKeyName(), $ids
+        )->get();
     }
 
     /**
@@ -229,9 +260,9 @@ trait Searchable
     }
 
     /**
-     * Get the queue that should be used with syncing
+     * Get the queue that should be used with syncing.
      *
-     * @return  string
+     * @return string
      */
     public function syncWithSearchUsingQueue()
     {
@@ -263,12 +294,42 @@ trait Searchable
      *
      * @param  string  $key
      * @param  mixed  $value
-     * @return void
+     * @return $this
      */
     public function withScoutMetadata($key, $value)
     {
         $this->scoutMetadata[$key] = $value;
 
         return $this;
+    }
+
+    /**
+     * Get the value used to index the model.
+     *
+     * @return mixed
+     */
+    public function getScoutKey()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Get the key name used to index the model.
+     *
+     * @return mixed
+     */
+    public function getScoutKeyName()
+    {
+        return $this->getQualifiedKeyName();
+    }
+
+    /**
+     * Determine if the current class should use soft deletes with searching.
+     *
+     * @return bool
+     */
+    protected static function usesSoftDelete()
+    {
+        return in_array(SoftDeletes::class, class_uses_recursive(get_called_class()));
     }
 }

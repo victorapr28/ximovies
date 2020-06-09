@@ -3,18 +3,20 @@
     "description": "Driver for Laravel Scout search package based on https://github.com/teamtnt/tntsearch",
     "keywords": ["tntsearch", "search", "scout", "laravel"],
     "license": "MIT",
-    "authors": [
-        {
-            "name": "TNT Studio",
-            "email": "info@tntstudio.hr"
-        }
-    ],
+    "authors": [{
+        "name": "TNT Studio",
+        "email": "info@tntstudio.hr"
+    }],
     "require": {
-        "teamtnt/tntsearch": "1.0.*",
-        "laravel/scout": "*",
-        "illuminate/contracts": "~5.3",
-        "illuminate/database": "~5.3",
-        "illuminate/support": "~5.3"
+        "php": ">=7.1",
+        "teamtnt/tntsearch": "2.*",
+        "laravel/scout": "7.*|^8.0",
+        "illuminate/bus": "~5.4|^6.0|^7.0",
+        "illuminate/contracts": "~5.4|^6.0|^7.0",
+        "illuminate/database": "~5.4|^6.0|^7.0",
+        "illuminate/pagination": "~5.4|^6.0|^7.0",
+        "illuminate/queue": "~5.4|^6.0|^7.0",
+        "illuminate/support": "~5.4|^6.0|^7.0"
     },
     "require-dev": {
         "mockery/mockery": "~0.9",
@@ -25,9 +27,19 @@
             "TeamTNT\\Scout\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "TeamTNT\\Scout\\TNTSearchScoutServiceProvider"
+            ]
         }
     },
     "suggest": {

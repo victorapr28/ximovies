@@ -5,6 +5,7 @@ namespace TeamTNT\Scout\Console;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
 use TeamTNT\TNTSearch\TNTSearch;
+use Illuminate\Support\Facades\Schema;
 
 class ImportCommand extends Command
 {
@@ -35,23 +36,29 @@ class ImportCommand extends Command
 
         $model = new $class();
         $tnt = new TNTSearch();
-        $driver = config('database.default');
+        $driver = $model->getConnectionName() ?: config('database.default');
         $config = config('scout.tntsearch') + config("database.connections.$driver");
+        $db = app('db')->connection($driver);
 
         $tnt->loadConfig($config);
-        $tnt->setDatabaseHandle(app('db')->connection()->getPdo());
+        $tnt->setDatabaseHandle($db->getPdo());
 
         $indexer = $tnt->createIndex($model->searchableAs().'.index');
         $indexer->setPrimaryKey($model->getKeyName());
-        $fields = implode(', ', array_keys($model->toSearchableArray()));
 
-        $query = "{$model->getKeyName()}, $fields";
+        $availableColumns = Schema::connection($driver)->getColumnListing($model->getTable());
+        $desiredColumns = array_keys($model->toSearchableArray());
 
-        if ($fields == '') {
-            $query = '*';
+        $fields = array_intersect($desiredColumns, $availableColumns);
+
+        $query = $db->table($model->getTable());
+
+        if ($fields) {
+            $query->select($model->getKeyName())
+                ->addSelect($fields);
         }
 
-        $indexer->query("SELECT $query FROM {$model->getTable()};");
+        $indexer->query($query->toSql());
 
         $indexer->run();
         $this->info('All ['.$class.'] records have been imported.');

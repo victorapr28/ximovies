@@ -33,7 +33,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             'BucketName' => 'Test bucket',
             'BucketType' => Bucket::TYPE_PUBLIC,
         ]);
-
         $this->assertInstanceOf(Bucket::class, $bucket);
         $this->assertEquals('Test bucket', $bucket->getName());
         $this->assertEquals(Bucket::TYPE_PUBLIC, $bucket->getType());
@@ -523,19 +522,20 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new Client('testId', 'testKey', ['client' => $guzzle]);
 
-        $client->deleteFile([
+        $this->assertTrue($client->deleteFile([
             'FileId'   => 'fileId',
             'FileName' => 'fileName',
-        ]);
+        ]));
     }
 
     public function testAuthenticationTimeout()
     {
         $reflectionClass = new ReflectionClass('BackblazeB2\Client');
-        $reflectionProperty = $reflectionClass->getProperty('reAuthTime');
+        $reflectionProperty = $reflectionClass->getProperty('reauthTime');
         $reflectionProperty->setAccessible(true);
 
         $guzzle = $this->buildGuzzleFromResponses([
+            $this->buildResponseFromStub(200, [], 'authorize_account.json'),
             $this->buildResponseFromStub(200, [], 'authorize_account.json'),
             $this->buildResponseFromStub(200, [], 'create_bucket_public.json'),
         ]);
@@ -543,11 +543,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $client = new Client('testId', 'testKey',
             [
                 'client'               => $guzzle,
-                'auth_timeout_seconds' => 2,
+                'auth_timeout_seconds' => 3,
             ]);
 
         $curTime = $reflectionProperty->getValue($client);
-        sleep(5);  // let the token timeout
+        sleep(10);  // let the token timeout
 
         // Something that will reaturhorize
         $bucket = $client->createBucket([
