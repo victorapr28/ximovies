@@ -132,6 +132,7 @@ class TmdbApi implements DataProvider
                 $from = Carbon::now()->subMonths(6)->format('Y-m-d');
                 $titleFilters = ['sort_by' => 'popularity.desc', 'primary_release_date.gte' => $from];
                 break;
+            case 'tv/top_rated':
             case 'movie/top_rated':
                 $titleFilters = ['sort_by' => 'vote_average.desc', 'vote_count.gte' => 600];
                 break;
@@ -157,9 +158,6 @@ class TmdbApi implements DataProvider
                 break;
             case 'tv/popular':
                 $titleFilters = ['sort_by' => 'popularity.desc'];
-                break;
-            case 'tv/top_rated':
-                $titleFilters = ['sort_by' => 'vote_average.desc', 'vote_count.gte' => 600];
                 break;
             case 'tv/on_the_air':
                 $from = Carbon::now()->startOfDay()->format('Y-m-d');

@@ -4,6 +4,7 @@ namespace Common\Core\Prerender;
 
 use Common\Pages\CustomPage;
 use Common\Core\Contracts\AppUrlGenerator;
+use Illuminate\Support\Str;
 
 class BaseUrlGenerator implements AppUrlGenerator
 {

@@ -4,7 +4,7 @@ namespace Common\Admin\Analytics\Actions;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Spatie\LaravelAnalytics\LaravelAnalytics;
+use Spatie\Analytics\Analytics;
 
 class GetGoogleAnalyticsData implements GetAnalyticsData
 {
