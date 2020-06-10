@@ -7,7 +7,6 @@ return [
     Common\Settings\Validators\TwitterLoginValidator::class,
     Common\Settings\Validators\StorageCredentialsValidator::class,
     Common\Settings\Validators\CacheConfigValidator::class,
-    Common\Settings\Validators\AnalyticsCredentialsValidator::class,
     Common\Settings\Validators\QueueCredentialsValidator::class,
     Common\Settings\Validators\LoggingCredentialsValidator::class,
     Common\Settings\Validators\RecaptchaCredentialsValidator::class,
