@@ -47,8 +47,7 @@ try {
     $response = $server->create(array(
         'name'     => '{serverName}',
         'imageId'  => '{imageId}',
-        'flavorId' => '{flavorId}',
-        'volume'   => $bootableVolume
+        'flavorId' => '{flavorId}'
     ));
 } catch (BadResponseException $e) {
     echo $e->getResponse();

@@ -78,8 +78,7 @@ class Port extends PersistentResource
 
     protected $updateKeys = array(
         'name',
-        'deviceId',
-        'securityGroups'
+        'deviceId'
     );
 
     /**

@@ -265,7 +265,7 @@ class DataObject extends AbstractResource
     }
 
     /**
-     * @param $contentLength mixed
+     * @param $contentType int
      * @return $this
      */
     public function setContentLength($contentLength)
@@ -276,7 +276,7 @@ class DataObject extends AbstractResource
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getContentLength()
     {
@@ -451,18 +451,14 @@ class DataObject extends AbstractResource
      *
      * @link http://docs.rackspace.com/files/api/v1/cf-devguide/content/TempURL-d1a4450.html
      *
-     * @param int    $expires        Expiration time in seconds
-     * @param string $method         What method can use this URL? (`GET' or `PUT')
-     * @param bool   $forcePublicUrl If set to TRUE, a public URL will always be used. The default is to use whatever
-     *                               URL type the user has set for the main service.
-     *
+     * @param $expires Expiration time in seconds
+     * @param $method  What method can use this URL? (`GET' or `PUT')
      * @return string
-     *
      * @throws \OpenCloud\Common\Exceptions\InvalidArgumentError
      * @throws \OpenCloud\Common\Exceptions\ObjectError
      *
      */
-    public function getTemporaryUrl($expires, $method, $forcePublicUrl = false)
+    public function getTemporaryUrl($expires, $method)
     {
         $method = strtoupper($method);
         $expiry = time() + (int) $expires;
@@ -482,10 +478,6 @@ class DataObject extends AbstractResource
         // @codeCoverageIgnoreEnd
 
         $url = $this->getUrl();
-        if ($forcePublicUrl === true) {
-            $url->setHost($this->getService()->getEndpoint()->getPublicUrl()->getHost());
-        }
-
         $urlPath = urldecode($url->getPath());
         $body = sprintf("%s\n%d\n%s", $method, $expiry, $urlPath);
         $hash = hash_hmac('sha1', $body, $secret);

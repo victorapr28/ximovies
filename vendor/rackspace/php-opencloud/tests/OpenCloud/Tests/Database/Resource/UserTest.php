@@ -46,7 +46,7 @@ class UserTest extends DatabaseTestCase
             'OpenCloud\Database\Resource\User', $this->user
         );
 
-        $u = $this->instance->user('glen', ['one', 'two']);
+        $u = $this->instance->user('glen', array('one', 'two'));
         $this->assertEquals('glen', $u->name);
         $this->assertEquals(2, count($u->databases));
     }
@@ -84,14 +84,14 @@ class UserTest extends DatabaseTestCase
 
     public function testCreate()
     {
-        $response = $this->user->create([
+        $response = $this->user->create(array(
             'name'      => 'FOOBAR',
             'password'  => 'BAZ',
-            'databases' => [
+            'databases' => array(
                 'foo',
                 'baz'
-            ]
-        ]);
+            )
+        ));
         $this->assertLessThan(205, $response->getStatusCode());
         $this->assertEquals('FOOBAR', $this->user->getName());
         $this->assertEquals('BAZ', $this->user->password);
@@ -118,16 +118,5 @@ class UserTest extends DatabaseTestCase
     public function testNameFailsWhenNotSet()
     {
         $this->instance->user()->getName();
-    }
-
-    public function test_It_Grants_Access_To_Db()
-    {
-        $this->user->name = 'foo';
-
-        $response = $this->user->grantDbAccess([
-            'foo', 'bar', 'baz',
-        ]);
-
-        $this->isResponse($response);
     }
 }

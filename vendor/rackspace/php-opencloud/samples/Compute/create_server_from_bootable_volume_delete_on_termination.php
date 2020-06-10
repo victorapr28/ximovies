@@ -47,11 +47,9 @@ $flavor = $computeService->flavor('{flavorId}');
 // list_images.php scripts.
 try {
     $response = $server->create(array(
-        'name'                      => '{serverName}',
-        'imageId'                   => '{imageId}',
-        'flavorId'                  => '{flavorId}',
-        'volume'                    => $bootableVolume,
-        'volumeDeleteOnTermination' => true
+        'name'     => '{serverName}',
+        'imageId'  => '{imageId}',
+        'flavorId' => '{flavorId}'
     ));
 } catch (BadResponseException $e) {
     echo $e->getResponse();

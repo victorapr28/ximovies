@@ -74,13 +74,11 @@ class ServiceTest extends DatabaseTestCase
         $this->assertInstanceOf(self::COLLECTION_CLASS, $this->service->datastoreList());
     }
 
-    public function testBackup()
+    public function testClientUsesCustomCipherSuite()
     {
-        $this->assertInstanceOf('OpenCloud\Database\Resource\Backup', $this->service->Backup());
-    }
-
-    public function testBackupList()
-    {
-        $this->assertInstanceOf(self::COLLECTION_CLASS, $this->service->backupList());
+        $client = $this->service->getClient();
+        $curlOptions = $client->getConfig('curl.options');
+        $this->assertEquals(Service::getSslCipherList(), $curlOptions['CURLOPT_SSL_CIPHER_LIST']);
+        $this->assertCriticalMessageWasLogged();
     }
 }

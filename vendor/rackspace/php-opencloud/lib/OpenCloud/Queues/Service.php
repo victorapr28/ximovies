@@ -21,7 +21,6 @@ use Guzzle\Common\Event;
 use Guzzle\Http\Exception\BadResponseException;
 use OpenCloud\Common\Exceptions\InvalidArgumentError;
 use OpenCloud\Common\Service\CatalogService;
-use OpenCloud\Queues\Resource\Queue;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -118,10 +117,7 @@ class Service extends CatalogService implements EventSubscriberInterface
     /**
      * Create a new Queue.
      *
-     * @param string $name Name of the new queue
-     *
-     * @throws InvalidArgumentError
-     *
+     * @param $name Name of the new queue
      * @return Queue
      */
     public function createQueue($name)

@@ -179,7 +179,10 @@ class ServerMetadata extends Metadata
         if ($name = $this->key) {
             $object->meta->$name = $this->$name;
         } else {
-            $object->metadata = $this->keylist();
+            $object->metadata = new \stdClass();
+            foreach ($this->keylist() as $key) {
+                $object->metadata->$key = (string) $this->$key;
+            }
         }
 
         $json = json_encode($object);

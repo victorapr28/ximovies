@@ -92,10 +92,6 @@ class Service extends AbstractService
      */
     public function getContainer($data = null)
     {
-        if (is_string($data) || is_numeric($data)) {
-            $this->checkContainerName($data);
-        }
-
         return new Container($this, $data);
     }
 
