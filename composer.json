@@ -17,11 +17,11 @@
         "hashids/hashids": "2.0.4",
         "intervention/image": "^2.4",
         "jenssegers/agent": "^2.6",
-        "torann/geoip": "^1.0",
         "laravel/framework": "^7.0",
         "laravel/scout": "^8.0",
         "laravel/socialite": "^4.4",
         "laravel/tinker": "^2.0",
+        "laravel/ui": "2.0",
         "league/flysystem-aws-s3-v3": "^1.0",
         "league/flysystem-rackspace": "^1.0",
         "league/omnipay": "^3.0",
@@ -36,7 +36,8 @@
         "symfony/dom-crawler": "3.4.19",
         "symfony/event-dispatcher": "^5.1",
         "symfony/translation": "^5.1",
-        "teamtnt/laravel-scout-tntsearch-driver": "^8.3"
+        "teamtnt/laravel-scout-tntsearch-driver": "^8.3",
+        "torann/geoip": "^1.0"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
