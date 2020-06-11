@@ -43,12 +43,25 @@ class AnalyticsController extends BaseController
         $this->authorize('index', 'ReportPolicy');
 
         $channel = $this->request->get('channel') ?: self::DEFAULT_CHANNEL;
+        $mainData = [
+            'weeklyPageViews' => [
+                'current' => [],
+                'previous' => [],
+            ],
+            'monthlyPageViews' => [
+                'current' => [],
+                'previous' => [],
+            ],
+            'browsers' => [],
+            'countries' => []
+        ];
 
         $headerData = $data = Cache::remember("analytics.data.header.$channel", Carbon::now()->addDay(), function() use($channel) {
             return $this->getHeaderDataAction->execute($channel);
         });
 
         return $this->success([
+            'mainData' => $mainData,
             'headerData' => $headerData,
         ]);
     }
