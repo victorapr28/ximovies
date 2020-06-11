@@ -10,8 +10,7 @@ class DotEnvEditor
 {
     public function load()
     {
-
-        $dotenv = Dotenv::createImmutable(__DIR__);
+        $dotenv = Dotenv::createImmutable(base_path());
         $dotenv->load();
     }
 }
