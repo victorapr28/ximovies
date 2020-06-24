@@ -25,7 +25,8 @@ class DotEnvEditor
      */
     public function write($values = [])
     {
-        $content = file_get_contents($this->filePath);
+        $filePath = base_path(".env");
+        $content = file_get_contents($filePath);
 
         foreach ($values as $key => $value) {
             $value = $this->formatValue($value);
@@ -38,7 +39,7 @@ class DotEnvEditor
                 $content .= "\n\n$key=$value";
             }
         }
-        $filePath = base_path(".env");
+
 
         file_put_contents($this->filePath, $content);
     }
