@@ -14,7 +14,7 @@ class DotEnvEditor
      */
     public function load()
     {
-        $dotenv = Dotenv::createImmutable(base_path());
+        $dotenv = Dotenv::createMutable(base_path());
         $env = $dotenv->load();
         return $env;
     }
@@ -41,7 +41,7 @@ class DotEnvEditor
         }
 
 
-        file_put_contents($this->filePath, $content);
+        file_put_contents($filePath, $content);
     }
 
     /**
