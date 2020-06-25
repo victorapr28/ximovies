@@ -34,11 +34,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-         // TEMP: disable deprecated warnings on php 7.4 until upgrade to laravel 6
-    	if (version_compare(PHP_VERSION, '7.4.0') >= 0) {
-    		error_reporting(E_ALL ^ E_DEPRECATED);
-    	}
-
         // bind analytics
         $this->app->bind(
             GetAnalyticsHeaderDataAction::class,
