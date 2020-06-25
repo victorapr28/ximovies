@@ -8,7 +8,8 @@ use Common\Admin\Analytics\Actions\GetAnalyticsData;
 use Common\Admin\Analytics\Actions\GetNullAnalyticsData;
 use Common\Admin\Analytics\Actions\GetGoogleAnalyticsData;
 
-class AnalyticsServiceProvider extends ServiceProvider
+class
+AnalyticsServiceProvider extends ServiceProvider
 {
     /**
      * Register bindings in the container.

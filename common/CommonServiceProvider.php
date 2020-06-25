@@ -3,6 +3,7 @@
 namespace Common;
 
 use Clockwork\Support\Laravel\ClockworkServiceProvider;
+use Common\Admin\Analytics\AnalyticsServiceProvider;
 use Common\Admin\Appearance\Themes\CssTheme;
 use Common\Admin\Appearance\Themes\CssThemePolicy;
 use Common\Auth\BaseUser;
@@ -133,6 +134,7 @@ class CommonServiceProvider extends ServiceProvider
 
         // register socialite service provider and alias
         $this->app->register(SocialiteServiceProvider::class);
+        $this->app->register(AnalyticsServiceProvider::class);
         $loader->alias('Socialite', Socialite::class);
 
         // url generator for SEO

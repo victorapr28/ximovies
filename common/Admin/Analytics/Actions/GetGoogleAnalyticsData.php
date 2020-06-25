@@ -4,19 +4,19 @@ namespace Common\Admin\Analytics\Actions;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Spatie\LaravelAnalytics\LaravelAnalytics;
+use Spatie\Analytics\Analytics;
 
 class GetGoogleAnalyticsData implements GetAnalyticsData
 {
     /**
-     * @var LaravelAnalytics
+     * @var Analytics
      */
     private $analytics;
 
     /**
-     * @param LaravelAnalytics $analytics
+     * @param Analytics $analytics
      */
-    public function __construct(LaravelAnalytics $analytics)
+    public function __construct(Analytics $analytics)
     {
         $this->analytics = $analytics;
         $this->registerCollectionMacros();
