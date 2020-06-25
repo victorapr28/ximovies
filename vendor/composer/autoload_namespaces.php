@@ -16,5 +16,7 @@ return array(
     'Guzzle\\Parser' => array($vendorDir . '/guzzle/parser'),
     'Guzzle\\Http' => array($vendorDir . '/guzzle/http'),
     'Guzzle\\Common' => array($vendorDir . '/guzzle/common'),
+    'Google_Service_' => array($vendorDir . '/google/apiclient-services/src'),
+    'Google_' => array($vendorDir . '/google/apiclient/src'),
     'Detection' => array($vendorDir . '/mobiledetect/mobiledetectlib/namespaced'),
 );

@@ -32,6 +32,7 @@
         "php-http/guzzle6-adapter": "1.1.1",
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^1.1",
+        "spatie/laravel-analytics": "^3.9",
         "symfony/css-selector": "3.4.*",
         "symfony/dom-crawler": "3.4.19",
         "symfony/event-dispatcher": "^5.1",

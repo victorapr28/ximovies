@@ -104,7 +104,7 @@ class SettingsController extends BaseController {
 
         // store google analytics certificate file
         if ($certificateFile = Arr::get($files, 'certificate')) {
-            File::put(storage_path('laravel-analytics/certificate.p12'), file_get_contents($certificateFile));
+            File::put(storage_path('app/analytics/service-account-credentials.json'), file_get_contents($certificateFile));
         }
     }
 
