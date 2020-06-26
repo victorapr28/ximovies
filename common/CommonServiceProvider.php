@@ -2,7 +2,6 @@
 
 namespace Common;
 
-use Clockwork\Support\Laravel\ClockworkServiceProvider;
 use Common\Admin\Analytics\AnalyticsServiceProvider;
 use Common\Admin\Appearance\Themes\CssTheme;
 use Common\Admin\Appearance\Themes\CssThemePolicy;
@@ -391,14 +390,6 @@ class CommonServiceProvider extends ServiceProvider
         if ($this->ideHelperExists()) {
             $this->app->register(IdeHelperServiceProvider::class);
         }
-        
-        if ($this->clockworkExists()) {
-            $this->app->register(ClockworkServiceProvider::class);
-        }
-    }
-
-    private function clockworkExists() {
-        return class_exists(ClockworkServiceProvider::class);
     }
 
     private function ideHelperExists() {

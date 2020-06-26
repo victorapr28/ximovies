@@ -7,12 +7,10 @@ class GetNullAnalyticsData implements GetAnalyticsData
     public function execute($channel) {
         return [
             'weeklyPageViews' => [
-                'current' => [],
-                'previous' => [],
+                'current' => []
             ],
             'monthlyPageViews' => [
-                'current' => [],
-                'previous' => [],
+                'current' => []
             ],
             'browsers' => [],
             'countries' => []

@@ -30,7 +30,7 @@ class DeleteUploadArtifacts extends Command
             'column' => 'body'
         ],
 
-        // mtdb
+        // ximovies
         'title-videos' => [
             'type' => 'model',
             'table' => 'videos',

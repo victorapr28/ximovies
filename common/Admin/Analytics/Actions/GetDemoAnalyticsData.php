@@ -10,12 +10,10 @@ class GetDemoAnalyticsData implements GetAnalyticsData
     public function execute($channel) {
         return [
             'weeklyPageViews' => [
-                'current' => $this->getWeekly(Carbon::now(), true),
-                'previous' => $this->getWeekly(Carbon::now()->subWeek()),
+                'current' => $this->getWeekly(Carbon::now(), true)
             ],
             'monthlyPageViews' => [
-                'current' => $this->getMonthly(Carbon::now()),
-                'previous' => $this->getMonthly(Carbon::now()->subMonth()),
+                'current' => $this->getMonthly(Carbon::now())
             ],
             'browsers' => $this->getBrowsers(),
             'countries' => $this->getCountries()

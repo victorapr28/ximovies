@@ -2,7 +2,7 @@
 
 return [
     // branding
-    ['name' => 'branding.site_description', 'value' => "MTDb, the world's most popular and authoritative source for movie, TV and celebrity content."],
+    ['name' => 'branding.site_description', 'value' => "XiMovies, the world's most popular and authoritative source for movie, TV and celebrity content."],
 
     // billing
     ['name' => 'billing.enable', 'value' => true],
@@ -121,7 +121,7 @@ return [
             [
                 'title' => 'Cancel Online Anytime.',
                 'subtitle' => 'No COMMITMENTS',
-                'description' => 'If you decide MTDb isn\'t for you - no problem. No commitment. Cancel online at anytime.',
+                'description' => 'If you decide XiMovies isn\'t for you - no problem. No commitment. Cancel online at anytime.',
                 'image' => 'client/assets/images/landing/wick.jpg',
             ]
         ]

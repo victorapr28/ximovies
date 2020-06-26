@@ -5,6 +5,7 @@ namespace Common\Admin\Analytics\Actions;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Analytics\Analytics;
+use Spatie\Analytics\Period;
 
 class GetGoogleAnalyticsData implements GetAnalyticsData
 {
@@ -25,7 +26,7 @@ class GetGoogleAnalyticsData implements GetAnalyticsData
     public function execute($channel)
     {
         return [
-            'browsers' =>  $this->analytics->getTopBrowsers(7),
+            'browsers' =>  $this->analytics->fetchTopBrowsers(Period::days(7)),
             'countries' => $this->getCountries(),
             'weeklyPageViews' => $this->weeklyPageViews(),
             'monthlyPageViews' => $this->monthlyPageViews(),
@@ -35,22 +36,20 @@ class GetGoogleAnalyticsData implements GetAnalyticsData
     private function weeklyPageViews()
     {
         return [
-            'current' => $this->getPageViews(Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()),
-            'previous' => $this->getPageViews(Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek())
+            'current' => $this->getPageViews(Period::days(7))
         ];
     }
 
     private function monthlyPageViews()
     {
         return [
-            'current' => $this->getPageViews(Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()),
-            'previous' => $this->getPageViews(Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth())
+            'current' => $this->getPageViews(Period::months(1))
         ];
     }
 
-    private function getPageViews(Carbon $start, Carbon $end)
+    private function getPageViews(Period $period)
     {
-        $data = $this->analytics->getVisitorsAndPageViewsForPeriod($start, $end);
+        $data = $this->analytics->fetchTotalVisitorsAndPageViews($period);
 
         return $data->map(function($item) {
             return [
@@ -63,8 +62,7 @@ class GetGoogleAnalyticsData implements GetAnalyticsData
     private function getCountries($maxResults = 6)
     {
         $answer = $this->analytics->performQuery(
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek(),
+            Period::days(7),
             'ga:sessions',
             ['dimensions' => 'ga:country', 'sort' => '-ga:sessions']
         );
