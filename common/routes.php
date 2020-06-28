@@ -144,9 +144,6 @@ Route::group(['prefix' => 'secure', 'middleware' => 'web'], function () {
 
 // no need for "secure" prefix here, but need "web" middleware
 Route::group(['middleware' => 'web'], function() {
-    Route::get('update', 'App\Http\Controllers\UpdateController@show');
-    Route::get('secure/update', 'App\Http\Controllers\UpdateController@show');
-    Route::post('secure/update/run', 'App\Http\Controllers\UpdateController@update');
 
     // CUSTOM DOMAIN
     Route::group(['prefix' => 'secure', 'middleware' => 'customDomainsEnabled'], function() {

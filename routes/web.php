@@ -36,10 +36,6 @@ Route::group(['prefix' => 'secure'], function () {
     // search
     Route::get('search/{query}', 'SearchController@index');
 
-    // update
-    Route::get('update', 'UpdateController@show');
-    Route::post('update/run', 'UpdateController@update');
-
     // lists
     Route::get('lists', 'ListController@index');
     Route::post('lists/auto-update-content', 'ListController@autoUpdateContent');
