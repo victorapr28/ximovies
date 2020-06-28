@@ -3,6 +3,7 @@
 use Common\Auth\Events\UserAvatarChanged;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\JsonResponse;
+use Intervention\Image\ImageManagerStatic;
 use Storage;
 use App\User;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class UserAvatarController extends BaseController {
         $this->authorize('update', $user);
 
         $this->validate($this->request, [
-            'file' => 'required|image|max:1500',
+            'file' => 'required|image|max:10280',
         ]);
 
         // delete old user avatar
@@ -55,6 +56,11 @@ class UserAvatarController extends BaseController {
 
         // store new avatar on public disk
         $path = $this->request->file('file')->storePublicly('avatars', ['disk' => 'public']);
+
+        //the image will be replaced with an optimized version which should be smaller
+        $img = ImageManagerStatic::make('storage/'.$path);
+        $img->fit(128);
+        $img->save('storage/'.$path, 50);
 
         // attach avatar to user model
         $user->avatar = $path;

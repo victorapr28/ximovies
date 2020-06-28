@@ -55,7 +55,7 @@ class UploadedFileToArray
             'file_name' => Str::random(40),
             'mime' => $originalMime,
             'type' => isset($type) ? $type : $this->getTypeFromMime($originalMime),
-            'file_size' => $file->getClientSize(),
+            'file_size' => $file->getSize(),
             'extension' => $this->getExtension($file, $originalMime),
         ];
 

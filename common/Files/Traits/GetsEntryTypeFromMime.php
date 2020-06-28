@@ -3,6 +3,8 @@
 namespace Common\Files\Traits;
 
 
+use Illuminate\Support\Str;
+
 trait GetsEntryTypeFromMime
 {
     /**
@@ -23,15 +25,15 @@ trait GetsEntryTypeFromMime
                 return 'pdf';
             case 'vnd.android.package-archive':
                 return 'android package';
-            case str_contains($mime, ['xls', 'excel', 'spreadsheetml']):
+            case Str::contains($mime, ['xls', 'excel', 'spreadsheetml']):
                 return 'spreadsheet';
-            case str_contains($mime, 'photoshop'):
+            case Str::contains($mime, 'photoshop'):
                 return 'photoshop';
-            case str_contains($mime, 'officedocument.presentation'):
+            case Str::contains($mime, 'officedocument.presentation'):
                 return 'powerPoint';
-            case str_contains($mime, ['application/msword', 'wordprocessingml.document']):
+            case Str::contains($mime, ['application/msword', 'wordprocessingml.document']):
                 return 'word';
-            case str_contains($mime, ['postscript', 'x-eps']):
+            case Str::contains($mime, ['postscript', 'x-eps']):
                 return 'postscript';
             default:
                 return $default === 'application' ? 'file' : $default;

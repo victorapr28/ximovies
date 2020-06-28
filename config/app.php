@@ -152,13 +152,7 @@ return [
         /*
          * Package Service Providers...
          */
-        Laravel\Tinker\TinkerServiceProvider::class,
-        Laravel\Socialite\SocialiteServiceProvider::class,
-        Sentry\Laravel\ServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class,
         Common\CommonServiceProvider::class,
-        Torann\GeoIP\GeoIPServiceProvider::class,
-        Jenssegers\Agent\AgentServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -220,10 +214,6 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
-        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-        'Sentry' => Sentry\Laravel\Facade::class,
-        'Image' => Intervention\Image\Facades\Image::class,
 
     ],
 
