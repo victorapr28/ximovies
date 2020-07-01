@@ -107,7 +107,7 @@ class BaseBootstrapData implements BootstrapData
         $defaultLight = new CssTheme(['name' => 'light', 'is_light' => true, 'colors' => config('common.themes.light')]);
 
         $cookieName = slugify(config('app.name')).'.theme';
-        $defaultMode = $this->settings->get('themes.default_mode', 'light');
+        $defaultMode = $this->settings->get('themes.default_mode', 'dark');
 
         if ($this->settings->get('themes.user_change')) {
             if ($themeFromUrl = $this->request->get('be-mode')) {

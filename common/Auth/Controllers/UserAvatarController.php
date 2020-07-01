@@ -52,9 +52,11 @@ class UserAvatarController extends BaseController {
         ]);
 
         // delete old user avatar
-        $this->storage->delete($user->getOriginal('avatar'));
+        $this->storage->delete($user->getRawOriginal('avatar'));
 
         // store new avatar on public disk
+
+        $eee = $this->request->file('file')->getFilename();
         $path = $this->request->file('file')->storePublicly('avatars', ['disk' => 'public']);
 
         //the image will be replaced with an optimized version which should be smaller
