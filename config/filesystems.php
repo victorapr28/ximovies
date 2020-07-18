@@ -54,7 +54,6 @@ return [
 
         'public' => [
             'driver' => 'dynamic-public',
-            'root' => storage_path('app'),
             'url' => 'storage',
             'visibility' => 'public',
         ],

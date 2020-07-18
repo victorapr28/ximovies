@@ -22,6 +22,7 @@ use OpenCloud\Common\Service\NovaService;
 use OpenCloud\Database\Resource\Instance;
 use OpenCloud\Database\Resource\Configuration;
 use OpenCloud\Database\Resource\Datastore;
+use OpenCloud\Database\Resource\Backup;
 
 /**
  * The Rackspace Database service
@@ -107,37 +108,27 @@ class Service extends NovaService
     }
 
     /**
-     * {@inheritDoc}
+     * Returns a Backup
+     *
+     * @param string $id the ID of the backup to retrieve
+     * @return \OpenCloud\Database\Resource\Backup
      */
-    public function setClient(ClientInterface $client)
+    public function backup($id = null)
     {
-        // The Rackspace Cloud Databases service only supports the
-        // RC4 SSL cipher which is not supported by modern OpenSSL clients.
-        // Until the service can support additional, more modern and secure
-        // ciphers, this SDK has to ask curl to allow using the weaker
-        // cipher. For more information, see https://github.com/rackspace/php-opencloud/issues/560
-
-        $curlOptions = $client->getConfig()->get('curl.options');
-        $curlOptions['CURLOPT_SSL_CIPHER_LIST'] = static::getSslCipherList();
-        $client->getConfig()->set('curl.options', $curlOptions);
-
-        $logMessage = 'The SDK is using a custom cipher suite when connecting '
-                    . 'to the Rackspace Cloud Databases service. This suite contains '
-                    . 'a weak cipher (RC4) so please use at your own risk. See '
-                    . 'https://github.com/rackspace/php-opencloud/issues/560 for details.';
-        $client->getLogger()->critical($logMessage);
-
-        $this->client = $client;
+        return $this->resource('Backup', $id);
     }
 
     /**
-     * @see https://github.com/rackspace/php-opencloud/issues/560#issuecomment-81790778
+     * Returns a Collection of Backup objects
+     *
+     * @param array $params
+     * @return \OpenCloud\Common\Collection\PaginatedIterator
      */
-    public static function getSslCipherList()
+    public function backupList($params = array())
     {
-        return 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:'
-            . 'ECDH+AES128:DH+AES:ECDH+HIGH:DH+HIGH:ECDH+3DES:'
-            . 'DH+3DES:RSA+AESGCM:RSA+AES:RSA+HIGH:RSA+3DES:'
-            . 'ECDH+RC4:DH+RC4:RSA+RC4:!aNULL:!eNULL:!MD5';
+        $url = clone $this->getUrl();
+        $url->addPath(Backup::resourceName())->setQuery($params);
+
+        return $this->resourceList('Backup', $url);
     }
 }

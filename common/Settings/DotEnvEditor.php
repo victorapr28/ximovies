@@ -15,8 +15,7 @@ class DotEnvEditor
     public function load()
     {
         $dotenv = Dotenv::createMutable(base_path());
-        $env = $dotenv->load();
-        return $env;
+        return $dotenv->load();
     }
 
     /**

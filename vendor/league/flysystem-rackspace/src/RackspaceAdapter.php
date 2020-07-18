@@ -2,13 +2,13 @@
 
 namespace League\Flysystem\Rackspace;
 
+use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedCopyTrait;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
-use OpenCloud\ObjectStore\Exception\ObjectNotFoundException;
 use OpenCloud\ObjectStore\Resource\Container;
 use OpenCloud\ObjectStore\Resource\DataObject;
 
@@ -62,6 +62,20 @@ class RackspaceAdapter extends AbstractAdapter
         $location = $this->applyPathPrefix($path);
 
         return $this->container->getObject($location);
+    }
+
+    /**
+     * Get the metadata of an object.
+     *
+     * @param string $path
+     *
+     * @return DataObject
+     */
+    protected function getPartialObject($path)
+    {
+        $location = $this->applyPathPrefix($path);
+
+        return $this->container->getPartialObject($location);
     }
 
     /**
@@ -123,14 +137,10 @@ class RackspaceAdapter extends AbstractAdapter
     public function delete($path)
     {
         try {
-            $object = $this->getObject($path);
-        } catch (ObjectNotFoundException $exception) {
-            return false;
-        }
+            $location = $this->applyPathPrefix($path);
 
-        $response = $object->delete();
-
-        if ($response->getStatusCode() !== 204) {
+            $this->container->deleteObject($location);
+        } catch (BadResponseException $exception) {
             return false;
         }
 
@@ -166,7 +176,12 @@ class RackspaceAdapter extends AbstractAdapter
      */
     public function createDir($dirname, Config $config)
     {
-        return ['path' => $dirname];
+        $headers = $config->get('headers', []);
+        $headers['Content-Type'] = 'application/directory';
+        $extendedConfig = (new Config())->setFallback($config);
+        $extendedConfig->set('headers', $headers);
+
+        return $this->write($dirname, '', $extendedConfig);
     }
 
     /**
@@ -260,7 +275,7 @@ class RackspaceAdapter extends AbstractAdapter
         $mimetype = explode('; ', $object->getContentType());
 
         return [
-            'type'      => 'file',
+            'type'      => ((in_array('application/directory', $mimetype)) ? 'dir' : 'file'),
             'dirname'   => Util::dirname($name),
             'path'      => $name,
             'timestamp' => strtotime($object->getLastModified()),
@@ -274,7 +289,7 @@ class RackspaceAdapter extends AbstractAdapter
      */
     public function getMetadata($path)
     {
-        $object = $this->getObject($path);
+        $object = $this->getPartialObject($path);
 
         return $this->normalizeObject($object);
     }

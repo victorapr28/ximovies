@@ -158,8 +158,17 @@ class RackspaceTests extends PHPUnit_Framework_TestCase
     public function testCreateDir()
     {
         $container = $this->getContainerMock();
+        $dataObject = $this->getDataObjectMock('dirname');
+        $container->shouldReceive('uploadObject')->with(
+            'dirname',
+            '',
+            ['Content-Type' => 'application/directory']
+        )->andReturn($dataObject);
+
         $adapter = new Rackspace($container);
-        $this->assertInternalType('array', $adapter->createDir('dirname', new Config()));
+        $response = $adapter->createDir('dirname', new Config());
+        $this->assertInternalType('array', $response);
+        $this->assertEquals('dirname', $response['path']);
     }
 
     public function getterProvider()
@@ -178,37 +187,23 @@ class RackspaceTests extends PHPUnit_Framework_TestCase
     {
         $container = $this->getContainerMock();
         $dataObject = $this->getDataObjectMock('filename.ext');
-        $container->shouldReceive('getObject')->andReturn($dataObject);
+        $container->shouldReceive('getPartialObject')->andReturn($dataObject);
         $adapter = new Rackspace($container);
         $this->assertInternalType('array', $adapter->{$function}('filename.ext'));
     }
 
-    public function deleteProvider()
-    {
-        return [
-            [204, true],
-            [500, false],
-        ];
-    }
-
-    /**
-     * @dataProvider  deleteProvider
-     */
-    public function testDelete($status, $expected)
+    public function testDelete()
     {
         $container = $this->getContainerMock();
-        $dataObject = Mockery::mock('OpenCloud\ObjectStore\Resource\DataObject');
-        $dataObject->shouldReceive('delete')->andReturn(Mockery::self());
-        $dataObject->shouldReceive('getStatusCode')->andReturn($status);
-        $container->shouldReceive('getObject')->andReturn($dataObject);
+        $container->shouldReceive('deleteObject');
         $adapter = new Rackspace($container);
-        $this->assertEquals($expected, $adapter->delete('filename.ext'));
+        $this->assertTrue($adapter->delete('filename.ext'));
     }
 
     public function testDeleteNotFound()
     {
         $container = $this->getContainerMock();
-        $container->shouldReceive('getObject')->andThrow('OpenCloud\ObjectStore\Exception\ObjectNotFoundException');
+        $container->shouldReceive('deleteObject')->andThrow('Guzzle\Http\Exception\BadResponseException');
         $adapter = new Rackspace($container);
         $this->assertFalse($adapter->delete('filename.txt'));
     }
